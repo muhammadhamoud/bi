@@ -1,0 +1,36 @@
+<script>
+    (() => {
+        const dialogId = '{{ dialog_id|default:"filter-dialog" }}';
+        const openButtonId = '{{ open_button_id|default:"open-filter-dialog" }}';
+
+        const dialog = document.getElementById(dialogId);
+        const openBtn = document.getElementById(openButtonId);
+        const closeBtn = document.getElementById(`${dialogId}-close`);
+        const closeFooterBtn = document.getElementById(`${dialogId}-close-footer`);
+        const backdrop = document.getElementById(`${dialogId}-backdrop`);
+
+        if (!dialog || !openBtn) return;
+
+        function openDialog() {
+            dialog.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
+        }
+
+        function closeDialog() {
+            dialog.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        openBtn.addEventListener('click', openDialog);
+
+        if (closeBtn) closeBtn.addEventListener('click', closeDialog);
+        if (closeFooterBtn) closeFooterBtn.addEventListener('click', closeDialog);
+        if (backdrop) backdrop.addEventListener('click', closeDialog);
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !dialog.classList.contains('hidden')) {
+                closeDialog();
+            }
+        });
+    })();
+</script>

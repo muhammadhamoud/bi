@@ -1,0 +1,37 @@
+{% extends 'layouts/dashboard.html' %}
+{% block title %}Users · {{ APP_NAME }}{% endblock %}
+
+{% block navbar %}
+    {% include 'partials/navbar.html' with page_title="Users" page_subtitle="Manage users, roles, and assigned properties within your scope." %}
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div></div>
+    <a href="{% url 'users:create' %}" class="rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700">Create User</a>
+  </div>
+  <form method="get" class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-4 dark:border-slate-800 dark:bg-slate-900">
+    {% for field in filter_form %}<div><label class="mb-1 block text-sm font-medium">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+    <div class="md:col-span-4 flex gap-3"><button class="rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white dark:bg-slate-100 dark:text-slate-900">Apply Filters</button><a href="{% url 'users:list' %}" class="rounded-2xl border border-slate-300 px-4 py-3">Reset</a></div>
+  </form>
+  <div class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+      <thead class="bg-slate-50 dark:bg-slate-800"><tr><th class="px-4 py-3 text-left">User</th><th class="px-4 py-3 text-left">Role</th><th class="px-4 py-3 text-left">Properties</th><th class="px-4 py-3 text-left">Status</th><th class="px-4 py-3 text-right">Actions</th></tr></thead>
+      <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+        {% for managed_user in users %}
+          <tr>
+            <td class="px-4 py-3"><div class="font-medium">{{ managed_user.name_or_email }}</div><div class="text-xs text-slate-500">{{ managed_user.email }}</div></td>
+            <td class="px-4 py-3">{{ managed_user.primary_role }}</td>
+            <td class="px-4 py-3">{% for assignment in managed_user.property_assignments.all %}<span class="mr-1 inline-flex rounded-full bg-slate-100 px-2 py-1 text-xs dark:bg-slate-800">{{ assignment.property.name }}</span>{% empty %}<span class="text-xs text-slate-500">None</span>{% endfor %}</td>
+            <td class="px-4 py-3">{% if managed_user.is_active %}<span class="rounded-full bg-emerald-50 px-2 py-1 text-xs text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">Active</span>{% else %}<span class="rounded-full bg-rose-50 px-2 py-1 text-xs text-rose-700 dark:bg-rose-950 dark:text-rose-300">Inactive</span>{% endif %}</td>
+            <td class="px-4 py-3 text-right"><a href="{% url 'users:detail' pk=managed_user.pk %}" class="text-blue-600">View</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="px-4 py-10">{% include 'components/empty_state.html' with title='No users found' message='Adjust your filters or create a new user.' %}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

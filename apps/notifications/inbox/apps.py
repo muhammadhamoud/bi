@@ -1,0 +1,8 @@
+from django.apps import AppConfig
+
+
+class NotificationsInboxConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'apps.notifications.inbox'
+    label = 'notificationsinbox'
+    verbose_name = 'Notifications Inbox'

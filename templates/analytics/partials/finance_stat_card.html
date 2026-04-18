@@ -1,0 +1,173 @@
+{% load dashboard_extras %}
+
+<div class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg dark:border-white/10 dark:bg-white/5">
+    <div class="mb-4 flex items-center justify-between gap-4">
+        <!-- <div class="min-w-0 flex-1">
+            <p class="truncate text-sm text-slate-500 dark:text-slate-400">
+                {{ card_title }}
+            </p>
+        </div> -->
+
+        <div class="min-w-0 flex flex-1 items-center gap-2">
+            <span class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border 
+                {% if metric.total >= metric.budget %}
+                    border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300
+                {% else %}
+                    border-rose-200 bg-rose-50 text-rose-600 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300
+                {% endif %}">
+                {% if icon_svg == 'revenue' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="h-4.5 w-4.5">
+                    <path d="M4 19h16" />
+                    <path d="M7 16V9" />
+                    <path d="M12 16V5" />
+                    <path d="M17 16v-3" />
+                </svg>
+
+                {% elif icon_svg == 'volume' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="h-4.5 w-4.5">
+                    <path d="M4 12h4l3-5 4 10 2-5h3" />
+                </svg>
+                {% elif icon_svg == 'rate' %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="h-4.5 w-4.5">
+                    <path d="M7 7h10v10H7z" />
+                    <path d="M10 10h4" />
+                    <path d="M10 14h4" />
+                </svg>
+                {% else %}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" class="h-4.5 w-4.5">
+                    <circle cx="12" cy="12" r="7" />
+                </svg>
+                {% endif %}
+            </span>
+
+            <p class="truncate text-sm text-slate-500 dark:text-slate-400">
+                {{ card_title }}
+            </p>
+        </div>
+
+        <div class="shrink-0">
+            {% if options|length > 1 %}
+            <div class="inline-flex rounded-2xl border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/5">
+                {% for option in options %}
+                    <a
+                        href="?{{ option.querystring }}"
+                        class="rounded-xl px-3 py-1.5 text-xs font-medium transition
+                        {% if option.key == active_option_key %}
+                            bg-white text-slate-900 shadow-sm dark:bg-white/10 dark:text-white
+                        {% else %}
+                            text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white
+                        {% endif %}"
+                    >
+                        {{ option.label }}
+                    </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <span class="inline-flex items-center rounded-full border border-slate-300 bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:border-white/10 dark:bg-white/10 dark:text-slate-200">
+                {{ metric.label }}
+            </span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+            {{ metric.total|metric_value:metric.unit }}
+        </h3>
+    </div>
+
+    <div class="mt-6 grid gap-4 sm:grid-cols-2">
+        {% percent_change metric.total metric.budget as budget_pct %}
+        {% compare_progress metric.total metric.budget as budget_progress %}
+
+        <div>
+            <div class="mb-2 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Budget</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ metric.budget|metric_value:metric.unit }}
+                    </p>
+                </div>
+                <div class="text-xs font-semibold {{ budget_pct|trend_color }}">
+                    {{ budget_pct|trend_arrow }} {{ budget_pct|signed_pct_1 }}
+                </div>
+            </div>
+            <div class="h-2.5 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                    class="h-2.5 rounded-full bg-gradient-to-r from-brand-500 to-violet-500"
+                    style="width: {{ budget_progress }}%;"
+                ></div>
+            </div>
+        </div>
+
+        {% percent_change metric.total metric.forecast as forecast_pct %}
+        {% compare_progress metric.total metric.forecast as forecast_progress %}
+
+        <div>
+            <div class="mb-2 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Forecast</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ metric.forecast|metric_value:metric.unit }}
+                    </p>
+                </div>
+                <div class="text-xs font-semibold {{ forecast_pct|trend_color }}">
+                    {{ forecast_pct|trend_arrow }} {{ forecast_pct|signed_pct_1 }}
+                </div>
+            </div>
+            <div class="h-2.5 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                    class="h-2.5 rounded-full bg-gradient-to-r from-cyan-500 to-sky-500"
+                    style="width: {{ forecast_progress }}%;"
+                ></div>
+            </div>
+        </div>
+
+        {% percent_change metric.total metric.same_time_last_year as stly_pct %}
+        {% compare_progress metric.total metric.same_time_last_year as stly_progress %}
+
+        <div>
+            <div class="mb-2 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Same Time LY</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ metric.same_time_last_year|metric_value:metric.unit }}
+                    </p>
+                </div>
+                <div class="text-xs font-semibold {{ stly_pct|trend_color }}">
+                    {{ stly_pct|trend_arrow }} {{ stly_pct|signed_pct_1 }}
+                </div>
+            </div>
+            <div class="h-2.5 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                    class="h-2.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"
+                    style="width: {{ stly_progress }}%;"
+                ></div>
+            </div>
+        </div>
+
+        {% percent_change metric.total metric.last_year_actual as lya_pct %}
+        {% compare_progress metric.total metric.last_year_actual as lya_progress %}
+
+        <div>
+            <div class="mb-2 flex items-center justify-between gap-3">
+                <div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Actual LY</p>
+                    <p class="text-sm font-semibold text-slate-900 dark:text-white">
+                        {{ metric.last_year_actual|metric_value:metric.unit }}
+                    </p>
+                </div>
+                <div class="text-xs font-semibold {{ lya_pct|trend_color }}">
+                    {{ lya_pct|trend_arrow }} {{ lya_pct|signed_pct_1 }}
+                </div>
+            </div>
+            <div class="h-2.5 rounded-full bg-slate-200 dark:bg-slate-800">
+                <div
+                    class="h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500"
+                    style="width: {{ lya_progress }}%;"
+                ></div>
+            </div>
+        </div>
+    </div>
+
+</div>

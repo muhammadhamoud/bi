@@ -1,0 +1,30 @@
+{% extends 'layouts/dashboard.html' %}
+{% block title %}My Profile · {{ APP_NAME }}{% endblock %}
+{% block navbar %}
+    {% include 'partials/navbar.html' with page_title=request.user.name_or_email page_subtitle=request.user.email %}
+{% endblock %}
+{% block content %}
+<div class="grid gap-6 lg:grid-cols-3">
+  <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <h1 class="text-2xl font-semibold">{{ request.user.name_or_email }}</h1>
+    <p class="text-slate-500 dark:text-slate-400">{{ request.user.email }}</p>
+    <div class="mt-6 space-y-2 text-sm">
+      <div><span class="font-medium">Role:</span> {{ request.user.primary_role }}</div>
+      <div><span class="font-medium">Theme:</span> {{ request.user.profile.theme_preference }}</div>
+      <div><span class="font-medium">Timezone:</span> {{ request.user.profile.timezone }}</div>
+    </div>
+    <div class="mt-6 flex gap-3"><a href="{% url 'profiles:update' %}" class="rounded-2xl bg-blue-600 px-4 py-3 font-semibold text-white hover:bg-blue-700">Edit profile</a><a href="{% url 'profiles:change-password' %}" class="rounded-2xl border border-slate-300 px-4 py-3">Change password</a></div>
+  </div>
+  <div class="lg:col-span-2 space-y-6">
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <h2 class="text-lg font-semibold">Assigned Properties</h2>
+      <div class="mt-4 flex flex-wrap gap-2">{% for assignment in request.user.property_assignments.all %}<span class="rounded-full bg-slate-100 px-3 py-2 text-sm dark:bg-slate-800">{{ assignment.property.name }}</span>{% empty %}<span class="text-sm text-slate-500">No properties assigned.</span>{% endfor %}</div>
+    </div>
+    <div class="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+      <h2 class="text-lg font-semibold">Preferences</h2>
+      <p class="mt-3 text-sm text-slate-500">Email alerts: {{ request.user.profile.receive_email_notifications|yesno:'Enabled,Disabled' }} · Product announcements: {{ request.user.profile.receive_product_announcements|yesno:'Enabled,Disabled' }}</p>
+      <p class="mt-2 text-sm text-slate-500">Bio: {{ request.user.profile.bio|default:'No profile biography yet.' }}</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

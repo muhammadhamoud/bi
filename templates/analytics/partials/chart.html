@@ -1,0 +1,145 @@
+<div class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-lg dark:border-white/10 dark:bg-white/5">
+    <div class="mb-4 flex items-center justify-between gap-4">
+        <div>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Occupancy Trend</p>
+            <h3 class="mt-1 text-lg font-semibold text-slate-900 dark:text-white">
+                Trend vs Same Time Last Year
+            </h3>
+        </div>
+
+        <div class="inline-flex rounded-2xl border border-slate-200 bg-slate-100 p-1 dark:border-white/10 dark:bg-white/5">
+            <button type="button" data-range="1M" class="rounded-xl px-3 py-1.5 text-xs font-medium">1M</button>
+            <button type="button" data-range="6M" class="rounded-xl px-3 py-1.5 text-xs font-medium">6M</button>
+            <button type="button" data-range="1Y" class="rounded-xl px-3 py-1.5 text-xs font-medium">1Y</button>
+            <button type="button" data-range="5Y" class="rounded-xl px-3 py-1.5 text-xs font-medium">5Y</button>
+            <button type="button" data-range="MAX" class="rounded-xl px-3 py-1.5 text-xs font-medium">Max</button>
+        </div>
+    </div>
+
+    <div id="occupancy-trend-chart" class="h-[360px]"></div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script>
+  const chartPayload = {{ chart_data_json|safe }};
+
+  const categories = chartPayload.categories;
+  const occupancy = chartPayload.series.occupancy;
+  const revenue = chartPayload.series.revenue;
+  const adr = chartPayload.series.adr;
+  const revpar = chartPayload.series.revpar;
+  const stly = chartPayload.series.same_time_last_year;
+
+  const currencyFormat = (value) => {
+    const n = Number(value || 0);
+    if (Math.abs(n) >= 1_000_000_000) return (n / 1_000_000_000).toFixed(1) + 'B';
+    if (Math.abs(n) >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1_000) return (n / 1_000).toFixed(1) + 'K';
+    return n.toFixed(n < 100 ? 1 : 0);
+  };
+
+  const options = {
+    chart: {
+      type: 'area',
+      height: 360,
+      toolbar: {
+        show: true,
+        tools: {
+          download: false,
+          selection: true,
+          zoom: true,
+          zoomin: false,
+          zoomout: false,
+          pan: true,
+          reset: true
+        }
+      },
+      zoom: {
+        enabled: true,
+        type: 'x',
+        autoScaleYaxis: true
+      }
+    },
+    series: [
+      {
+        name: 'Occupancy',
+        data: categories.map((x, i) => [x, occupancy[i]])
+      },
+      {
+        name: 'Same Time LY',
+        data: categories.map((x, i) => [x, stly[i]])
+      }
+    ],
+    xaxis: {
+      type: 'datetime'
+    },
+    yaxis: [
+      {
+        title: { text: 'Occupancy %' },
+        labels: {
+          formatter: (v) => `${Math.round(v)}%`
+        }
+      }
+    ],
+    stroke: {
+      curve: 'smooth',
+      width: [3, 2],
+      dashArray: [0, 6]
+    },
+    fill: {
+      type: 'gradient',
+      gradient: {
+        opacityFrom: 0.28,
+        opacityTo: 0.02
+      }
+    },
+    markers: {
+      size: 0,
+      hover: { size: 5 }
+    },
+    tooltip: {
+      shared: false,
+      intersect: false,
+      custom: function({ dataPointIndex, w }) {
+        const date = new Date(categories[dataPointIndex]).toLocaleDateString();
+        return `
+          <div class="rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-lg dark:border-white/10 dark:bg-slate-900">
+            <div class="mb-2 font-semibold text-slate-900 dark:text-white">${date}</div>
+            <div class="grid gap-1">
+              <div class="flex justify-between gap-4"><span>Occupancy</span><span>${Math.round(occupancy[dataPointIndex])}%</span></div>
+              <div class="flex justify-between gap-4"><span>Revenue</span><span>${currencyFormat(revenue[dataPointIndex])}</span></div>
+              <div class="flex justify-between gap-4"><span>ADR</span><span>${Number(adr[dataPointIndex]).toFixed(1)}</span></div>
+              <div class="flex justify-between gap-4"><span>RevPAR</span><span>${Number(revpar[dataPointIndex]).toFixed(1)}</span></div>
+              <div class="flex justify-between gap-4"><span>Same Time LY</span><span>${Math.round(stly[dataPointIndex])}%</span></div>
+            </div>
+          </div>
+        `;
+      }
+    },
+    legend: {
+      show: true
+    }
+  };
+
+  const chart = new ApexCharts(document.querySelector("#occupancy-trend-chart"), options);
+  chart.render();
+
+  const applyRange = (monthsBack) => {
+    const end = new Date(categories[categories.length - 1]).getTime();
+    const start = new Date(categories[categories.length - 1]);
+    start.setMonth(start.getMonth() - monthsBack);
+    chart.zoomX(start.getTime(), end);
+  };
+
+  document.querySelectorAll('[data-range]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const range = btn.dataset.range;
+      if (range === '1M') applyRange(1);
+      if (range === '6M') applyRange(6);
+      if (range === '1Y') applyRange(12);
+      if (range === '5Y') applyRange(60);
+      if (range === 'MAX') chart.resetSeries();
+    });
+  });
+</script>

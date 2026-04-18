@@ -1,0 +1,27 @@
+{% extends 'layouts/dashboard.html' %}
+{% load static %}
+{% block title %}{{ report.name }} · {{ APP_NAME }}{% endblock %}
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/powerbi-client/dist/powerbi.min.js"></script>
+<script src="{% static 'js/powerbi_embed.js' %}"></script>
+{% endblock %}
+
+{% block navbar %}
+{% include 'partials/navbar.html' with page_title=report.name page_subtitle=report.description %}
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    {% if error_message %}<div
+        class="rounded-3xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-800 dark:border-amber-900 dark:bg-amber-950 dark:text-amber-200">
+        {{ error_message }}</div>{% endif %}<div
+        class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <div id="powerbi-container" class="h-[70vh] w-full rounded-2xl bg-slate-100 dark:bg-slate-950"></div>
+        {% if embed_config %}
+        <script id="powerbi-config"
+            type="application/json">{"type":"{{ embed_config.type }}","tokenType":"{{ embed_config.token_type }}","accessToken":"{{ embed_config.access_token|escapejs }}","embedUrl":"{{ embed_config.embed_url|escapejs }}","reportId":"{{ embed_config.report_id|escapejs }}"}</script>
+        <script>document.addEventListener('DOMContentLoaded', function () { if (window.HorizonBI) { window.HorizonBI.embedPowerBI('powerbi-container', 'powerbi-config'); } });</script>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

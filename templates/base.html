@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ APP_NAME }}{% endblock %}</title>
+  <script>window.__themePreference = "{{ theme_preference|default:'system' }}";</script>
+  <script src="{% static 'js/theme.js' %}"></script>
+  {% if TAILWIND_USE_CDN %}
+    <script src="https://cdn.tailwindcss.com"></script>
+  {% else %}
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}">
+  {% endif %}
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  
+  <!-- added new TODO -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+
+  {% include 'partials/extra_headers.html' %}
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="h-full bg-slate-50 text-slate-900 antialiased dark:bg-slate-950 dark:text-slate-100">
+  {% include 'partials/toasts.html' %}
+  {% block body %}{% endblock %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="{% static 'js/dashboard.js' %}"></script>
+  <script src="{% static 'js/toasts.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+  {% load django_browser_reload %}
+  {% django_browser_reload_script %}
+  {% comment %}
+  {% endcomment %}
+</body>
+</html>

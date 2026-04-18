@@ -1,0 +1,388 @@
+{% extends 'layouts/dashboard.html' %}
+{% load mapping_extras %}
+
+{% block title %}{{ page_title }} · {{ APP_NAME }}{% endblock %}
+
+{% block navbar %}
+    {% include 'partials/navbar.html' with page_title=page_title page_subtitle='Manage property-scoped market segmentation hierarchies and source code mappings.' %}
+{% endblock %}
+
+
+{% block content %}
+<input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+
+    <div class="space-y-6">
+        <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                <div class="min-w-0 flex-1">
+                    <nav>
+                        <div class="flex flex-wrap items-center gap-6 font-semibold">
+                            <a
+                                href="{% url 'settings_mappings:segment-group-list' %}"
+                                class="relative pb-3 text-sm font-medium transition {% if page_title == 'Segment groups' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
+                            >
+                                Groups
+                                {% if page_title == 'Segment groups' %}
+                                    <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                                {% endif %}
+                            </a>
+
+                            <a
+                                href="{% url 'settings_mappings:segment-category-list' %}"
+                                class="relative pb-3 text-sm font-medium transition {% if page_title == 'Segment categories' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
+                            >
+                                Categories
+                                {% if page_title == 'Segment categories' %}
+                                    <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                                {% endif %}
+                            </a>
+
+                            <a
+                                href="{% url 'settings_mappings:segment-list' %}"
+                                class="relative pb-3 text-sm font-medium transition {% if page_title == 'Segments' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
+                            >
+                                Segments
+                                {% if page_title == 'Segments' %}
+                                    <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                                {% endif %}
+                            </a>
+
+                            <a
+                                href="{% url 'settings_mappings:segment-detail-list' %}"
+                                class="relative pb-3 text-sm font-medium transition {% if page_title == 'Segment details' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
+                            >
+                                Details
+                                {% if page_title == 'Segment details' %}
+                                    <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                                {% endif %}
+                            </a>
+                        </div>
+                    </nav>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2 lg:justify-end">
+
+                    <button
+                        type="button"
+                        id="open-filter-dialog"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    >
+                        <i class="fas fa-sliders-h text-xs" aria-hidden="true"></i>
+                        <span>Filters</span>
+                    </button>
+
+                    <a
+                        href="{{ request.path }}"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                        <i class="fas fa-sync text-xs" aria-hidden="true"></i>
+                        <span>Refresh</span>
+                    </a>
+                    <a
+                        href="?{% if current_query %}{{ current_query }}&{% endif %}export=csv"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    >
+                        <i class="fas fa-download text-xs" aria-hidden="true"></i>
+                        <span>Export</span>
+                    </a>
+
+                    {% if can_manage %}
+                        {% if page_title == 'Segment details' %}
+                            <a
+                                href="{% url 'settings_mappings:segment-detail-create' %}"
+                                class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-3.5 py-2 text-sm font-medium text-white transition hover:border-blue-300 hover:bg-blue-700 dark:border-blue-500/30 dark:bg-blue-500 dark:text-white dark:hover:bg-blue-400"
+                            >
+                                <i class="fas fa-plus text-xs" aria-hidden="true"></i>
+                                <span>Create Detail</span>
+                            </a>
+                        {% elif page_title == 'Segment groups' %}
+                            <a
+                                href="{% url 'settings_mappings:segment-group-create' %}"
+                                class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-3.5 py-2 text-sm font-medium text-white transition hover:border-blue-300 hover:bg-blue-700 dark:border-blue-500/30 dark:bg-blue-500 dark:text-white dark:hover:bg-blue-400"
+                            >
+                                <i class="fas fa-plus text-xs" aria-hidden="true"></i>
+                                <span>Create Group</span>
+                            </a>
+                        {% elif page_title == 'Segment categories' %}
+                            <a
+                                href="{% url 'settings_mappings:segment-category-create' %}"
+                                class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-3.5 py-2 text-sm font-medium text-white transition hover:border-blue-300 hover:bg-blue-700 dark:border-blue-500/30 dark:bg-blue-500 dark:text-white dark:hover:bg-blue-400"
+                            >
+                                <i class="fas fa-plus text-xs" aria-hidden="true"></i>
+                                <span>Create Category</span>
+                            </a>
+                        {% elif page_title == 'Segments' %}
+                            <a
+                                href="{% url 'settings_mappings:segment-create' %}"
+                                class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-blue-600 px-3.5 py-2 text-sm font-medium text-white transition hover:border-blue-300 hover:bg-blue-700 dark:border-blue-500/30 dark:bg-blue-500 dark:text-white dark:hover:bg-blue-400"
+                            >
+                                <i class="fas fa-plus text-xs" aria-hidden="true"></i>
+                                <span>Create Segment</span>
+                            </a>
+                        {% endif %}
+                    {% endif %}
+
+
+                </div>
+            </div>
+        </section>
+
+        <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div class="border-b border-slate-200 px-4 py-4 dark:border-slate-800 sm:px-6">
+                <div class="flex items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base font-semibold text-slate-900 dark:text-slate-100">
+                            {{ page_title }}
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">
+                            Review and manage the records listed below.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+    <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+        <thead class="bg-slate-50 dark:bg-slate-800">
+            <tr>
+                {% if page_title == 'Segment details' %}
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300 pl-4">Property</th>
+                    <th class="w-[10ch] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Code</th>
+                    <th class="w-[25%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Name</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Category</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Segment</th>
+                    <th class="w-[15%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Active</th>
+                    <th class="w-[15%] px-2 py-1.5 text-right font-medium text-slate-600 dark:text-slate-300 pr-4">Actions</th>
+                {% elif page_title == 'Segment categories' %}
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300 pl-4">Property</th>
+                    <th class="w-[10ch] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Code</th>
+                    <th class="w-[25%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Name</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Group</th>
+                    <th class="w-[15%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Active</th>
+                    <th class="w-[15%] px-2 py-1.5 text-right font-medium text-slate-600 dark:text-slate-300 pr-4">Actions</th>
+                {% elif page_title == 'Segments' %}
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300 pl-4">Property</th>
+                    <th class="w-[10ch] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Code</th>
+                    <th class="w-[25%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Name</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Group</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Category</th>
+                    <th class="w-[15%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Active</th>
+                    <th class="w-[15%] px-2 py-1.5 text-right font-medium text-slate-600 dark:text-slate-300 pr-4">Actions</th>
+                {% else %}
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300 pl-4">Property</th>
+                    <th class="w-[10ch] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Code</th>
+                    <th class="w-[25%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Name</th>
+                    <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300"></th>
+                    <th class="w-[15%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Active</th>
+                    <th class="w-[15%] px-2 py-1.5 text-right font-medium text-slate-600 dark:text-slate-300 pr-4">Actions</th>
+                {% endif %}
+            </tr>
+        </thead>
+
+        <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
+            {% for object in objects %}
+                <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40">
+                    {% if page_title == 'Segment details' %}
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200 pl-4">{{ object.property.name }}</td>
+                        <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name|default:'—' }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.segment.category.name|default:'—' }}</td>
+                        {% include 'settings/mappings/segmentations/partials/inline_relation_cell.html' with object=object display_value=object.segment.name|default:'—' field_name='segment' current_related_id=object.segment_id options=segment_options_by_property|get_item:object.property_id post_url_name='settings_mappings:segment-detail-inline-segment-update' %}
+                        <td class="px-2 py-1.5">
+                            {% if object.is_active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                    <i class="fas fa-times-circle text-[10px]" aria-hidden="true"></i>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-1.5 text-right pr-4">
+                            <div class="inline-flex items-center gap-2">
+                                {% if can_manage %}
+                                    <a href="{% url 'settings_mappings:segment-detail-update' pk=object.pk %}"
+                                       class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                        <i class="fas fa-pen text-xs"></i>
+                                        <span>Edit</span>
+                                    </a>
+                                {% endif %}
+
+                                <a href="{% url 'settings_mappings:segment-detail-detail' pk=object.pk %}"
+                                   class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                    <i class="fas fa-eye text-xs"></i>
+                                    <span>View</span>
+                                </a>
+                            </div>
+                        </td>
+
+                    {% elif page_title == 'Segment categories' %}
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200 pl-4">{{ object.property.name }}</td>
+                        <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name }}</td>
+                        {% include 'settings/mappings/segmentations/partials/inline_relation_cell.html' with object=object display_value=object.group.name|default:'—' field_name='group' current_related_id=object.group_id options=group_options_by_property|get_item:object.property_id post_url_name='settings_mappings:segment-category-inline-group-update' %}
+                        <td class="px-2 py-1.5">
+                            {% if object.is_active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                    <i class="fas fa-times-circle text-[10px]" aria-hidden="true"></i>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-1.5 text-right pr-4">
+                            <a href="{% url 'settings_mappings:segment-category-update' pk=object.pk %}"
+                               class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-pen text-xs"></i>
+                                <span>Edit</span>
+                            </a>
+                        </td>
+
+                    {% elif page_title == 'Segments' %}
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200 pl-4">{{ object.property.name }}</td>
+                        <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.category.group.name|default:'—' }}</td>
+                        {% include 'settings/mappings/segmentations/partials/inline_relation_cell.html' with object=object display_value=object.category.name|default:'—' field_name='category' current_related_id=object.category_id options=category_options_by_property|get_item:object.property_id post_url_name='settings_mappings:segment-inline-category-update' %}
+                        <td class="px-2 py-1.5">
+                            {% if object.is_active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                    <i class="fas fa-times-circle text-[10px]" aria-hidden="true"></i>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-1.5 text-right pr-4">
+                            <a href="{% url 'settings_mappings:segment-update' pk=object.pk %}"
+                               class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                <i class="fas fa-pen text-xs"></i>
+                                <span>Edit</span>
+                            </a>
+                        </td>
+
+                    {% else %}
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200 pl-4">{{ object.property.name }}</td>
+                        <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name }}</td>
+                        <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200"></td>
+                        <td class="px-2 py-1.5">
+                            {% if object.is_active %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-green-50 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-500/10 dark:text-green-400">
+                                    <i class="fas fa-check-circle text-[10px]" aria-hidden="true"></i>
+                                    Active
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-700 dark:bg-red-500/10 dark:text-red-400">
+                                    <i class="fas fa-times-circle text-[10px]" aria-hidden="true"></i>
+                                    Inactive
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-2 py-1.5 text-right pr-4">
+                            {% if page_title == 'Segment groups' %}
+                                <a href="{% url 'settings_mappings:segment-group-update' pk=object.pk %}"
+                                   class="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                                    <i class="fas fa-pen text-xs"></i>
+                                    <span>Edit</span>
+                                </a>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr>
+                    <td
+                        colspan="{% if page_title == 'Segments' %}7{% elif page_title == 'Segment details' or page_title == 'Segment categories' %}6{% else %}5{% endif %}"
+                        class="px-4 py-12"
+                    >
+                        {% include 'components/empty_state.html' with title='No records found' message='Create a new segmentation record or update your filters.' %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+        </section>
+
+        {% if is_paginated %}
+            <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-4 shadow-sm md:flex-row md:items-center md:justify-between dark:border-slate-800 dark:bg-slate-900">
+                <div class="text-sm text-slate-600 dark:text-slate-300">
+                    Showing
+                    <span class="font-semibold">{{ page_obj.start_index }}</span>
+                    to
+                    <span class="font-semibold">{{ page_obj.end_index }}</span>
+                    of
+                    <span class="font-semibold">{{ paginator.count }}</span>
+                    results
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                    {% if page_obj.has_previous %}
+                        <a
+                            href="?page=1{% if current_query %}&{{ current_query }}{% endif %}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                            First
+                        </a>
+                        <a
+                            href="?page={{ page_obj.previous_page_number }}{% if current_query %}&{{ current_query }}{% endif %}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                            Previous
+                        </a>
+                    {% endif %}
+
+                    {% if page_range_window %}
+                        {% for num in page_range_window %}
+                            {% if num == page_obj.number %}
+                                <span class="rounded-2xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900">
+                                    {{ num }}
+                                </span>
+                            {% else %}
+                                <a
+                                    href="?page={{ num }}{% if current_query %}&{{ current_query }}{% endif %}"
+                                    class="rounded-2xl border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                                >
+                                    {{ num }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if page_obj.has_next %}
+                        <a
+                            href="?page={{ page_obj.next_page_number }}{% if current_query %}&{{ current_query }}{% endif %}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                            Next
+                        </a>
+                        <a
+                            href="?page={{ paginator.num_pages }}{% if current_query %}&{{ current_query }}{% endif %}"
+                            class="rounded-2xl border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                        >
+                            Last
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+{% include 'settings/partials/filter_dialog.html' with dialog_id='filter-dialog' dialog_title='Filter records' dialog_description='Apply filters to narrow down the list.' dialog_width='max-w-4xl' dialog_grid_classes='md:grid-cols-2 xl:grid-cols-4' %}{% include 'settings/partials/filter_dialog_script.html' with dialog_id='filter-dialog' open_button_id='open-filter-dialog' %}
+
+{% endblock %}
+
+

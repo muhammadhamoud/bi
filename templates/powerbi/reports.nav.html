@@ -1,0 +1,74 @@
+{% if can_view_reports_menu %}
+<nav class="hidden items-center gap-4 lg:flex">
+    <div
+        x-data="{ open: false, activeGroup: null, closeTimer: null }"
+        @mouseenter="clearTimeout(closeTimer); open = true"
+        @mouseleave="closeTimer = setTimeout(() => { open = false; activeGroup = null }, 120)"
+        class="relative"
+    >
+        <button
+            type="button"
+            class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white"
+        >
+            <i class="fas fa-chart-line"></i>
+            <span class="inline-block w-14 text-left">Reports</span>
+            <i class="fas fa-chevron-down text-xs transition duration-200"
+               :class="open ? 'rotate-180' : ''"></i>
+        </button>
+
+        <div
+            x-show="open"
+            x-transition
+            x-cloak
+            class="absolute left-0 z-50 mt-3 flex rounded-2xl border border-slate-200 bg-white shadow-panel dark:border-slate-700 dark:bg-slate-900"
+        >
+            <div class="w-72 border-r border-slate-200 p-2 dark:border-slate-700">
+                {% for group in report_menu %}
+                <button
+                    type="button"
+                    @mouseenter="activeGroup = '{{ forloop.counter }}'"
+                    class="flex w-full items-center justify-between rounded-xl px-3 py-3 text-left text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    :class="activeGroup === '{{ forloop.counter }}' ? 'bg-slate-100 dark:bg-slate-800' : ''"
+                >
+                    <span class="flex items-center gap-3">
+                        <i class="fas {{ group.icon }} w-4 text-center text-{{ group.color }}-600 dark:text-{{ group.color }}-400"></i>
+                        <span class="font-medium">{{ group.title }}</span>
+                    </span>
+                    <i class="fas fa-chevron-right text-xs text-slate-400"></i>
+                </button>
+                {% endfor %}
+            </div>
+
+            <div class="w-96 p-2">
+                {% for group in report_menu %}
+                <div
+                    x-show="activeGroup === '{{ forloop.counter }}'"
+                    x-transition
+                    x-cloak
+                    class="space-y-1"
+                >
+                    {% for item in group.items %}
+                    <a
+                        href="{{ item.url }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-700 transition hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                    >
+                        <i class="fas {{ item.icon }} w-4 text-center text-{{ group.color }}-500 dark:text-{{ group.color }}-400"></i>
+                        <div class="min-w-0">
+                            <p class="font-medium">{{ item.title }}</p>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+
+                <div
+                    x-show="activeGroup === null"
+                    class="flex h-full min-h-[240px] items-center justify-center px-6 text-center text-sm text-slate-400 dark:text-slate-500"
+                >
+                    Hover over a group to view reports
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+{% endif %}

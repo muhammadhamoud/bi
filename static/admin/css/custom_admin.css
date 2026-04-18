@@ -1,0 +1,14 @@
+#changelist {
+    position: relative;
+}
+
+#changelist #changelist-filter {
+    float: right;
+    width: 240px;
+    margin-left: 20px;
+}
+
+#changelist #changelist-form,
+#changelist .results {
+    margin-right: 260px;
+}

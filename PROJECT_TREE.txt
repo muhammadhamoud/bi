@@ -1,0 +1,314 @@
+horizonbi_project/
+├── apps/
+│   ├── analytics/
+│   │   ├── kpi/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_analytics_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── services/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── dashboard_builders.py
+│   │   │   │   └── kpi_calculations.py
+│   │   │   ├── templatetags/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── kpi_formatters.py
+│   │   │   │   └── kpi_tags.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── forms.py
+│   │   │   ├── models.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── core/
+│   │   ├── common/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_all_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── templatetags/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── navigation_tags.py
+│   │   │   ├── __init__.py
+│   │   │   ├── access.py
+│   │   │   ├── apps.py
+│   │   │   ├── context_processors.py
+│   │   │   ├── forms.py
+│   │   │   ├── mixins.py
+│   │   │   └── models.py
+│   │   ├── security/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   └── services.py
+│   │   └── __init__.py
+│   ├── dashboard/
+│   │   ├── home/
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── dataops/
+│   │   ├── files/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_dataops_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── forms.py
+│   │   │   ├── models.py
+│   │   │   ├── selectors.py
+│   │   │   ├── services.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── notifications/
+│   │   ├── announcements/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── forms.py
+│   │   │   ├── models.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   ├── inbox/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_notifications_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── powerbi/
+│   │   ├── embedded/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_powerbi_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── selectors.py
+│   │   │   ├── services.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── properties/
+│   │   ├── core/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_properties.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── selectors.py
+│   │   │   ├── services.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   ├── settings/
+│   │   ├── mappings/
+│   │   │   ├── forms/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── common.py
+│   │   │   │   └── segmentations.py
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   ├── seed_mapping_demo.py
+│   │   │   │   │   └── seed_segmentation_demo.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── models/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── base.py
+│   │   │   │   ├── booking_sources.py
+│   │   │   │   ├── companies.py
+│   │   │   │   ├── competitors.py
+│   │   │   │   ├── day_of_week.py
+│   │   │   │   ├── guest_countries.py
+│   │   │   │   ├── loyalties.py
+│   │   │   │   ├── origins.py
+│   │   │   │   ├── packages.py
+│   │   │   │   ├── rate_codes.py
+│   │   │   │   ├── room_types.py
+│   │   │   │   ├── segmentations.py
+│   │   │   │   └── travel_agents.py
+│   │   │   ├── selectors/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── common.py
+│   │   │   ├── services/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── registry.py
+│   │   │   ├── urls/
+│   │   │   │   ├── __init__.py
+│   │   │   │   └── segmentations.py
+│   │   │   ├── views/
+│   │   │   │   ├── __init__.py
+│   │   │   │   ├── common.py
+│   │   │   │   └── segmentations.py
+│   │   │   ├── __init__.py
+│   │   │   └── apps.py
+│   │   └── __init__.py
+│   ├── usermanagement/
+│   │   ├── profiles/
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── forms.py
+│   │   │   ├── models.py
+│   │   │   ├── signals.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   ├── roles/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_roles.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   └── services.py
+│   │   ├── users/
+│   │   │   ├── management/
+│   │   │   │   ├── commands/
+│   │   │   │   │   ├── __init__.py
+│   │   │   │   │   └── seed_demo_users.py
+│   │   │   │   └── __init__.py
+│   │   │   ├── migrations/
+│   │   │   │   └── __init__.py
+│   │   │   ├── __init__.py
+│   │   │   ├── apps.py
+│   │   │   ├── auth_urls.py
+│   │   │   ├── backends.py
+│   │   │   ├── forms.py
+│   │   │   ├── models.py
+│   │   │   ├── selectors.py
+│   │   │   ├── services.py
+│   │   │   ├── urls.py
+│   │   │   └── views.py
+│   │   └── __init__.py
+│   └── __init__.py
+├── config/
+│   ├── settings/
+│   │   ├── __init__.py
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   └── prod.py
+│   ├── __init__.py
+│   ├── asgi.py
+│   ├── urls.py
+│   └── wsgi.py
+├── static/
+│   ├── css/
+│   │   ├── app.css
+│   │   └── tailwind.css
+│   ├── js/
+│   │   ├── dashboard.js
+│   │   ├── powerbi_embed.js
+│   │   └── theme.js
+│   └── src/
+│       └── input.css
+├── templates/
+│   ├── analytics/
+│   │   ├── daily_occupancy.html
+│   │   ├── executive_overview.html
+│   │   ├── goals.html
+│   │   ├── property_performance.html
+│   │   └── revenue.html
+│   ├── announcements/
+│   │   ├── form.html
+│   │   └── list.html
+│   ├── components/
+│   │   ├── cards/
+│   │   │   ├── chart_card.html
+│   │   │   └── kpi_card.html
+│   │   └── empty_state.html
+│   ├── dashboard/
+│   │   └── home/
+│   │       └── index.html
+│   ├── dataops/
+│   │   ├── dashboard.html
+│   │   ├── download_history_list.html
+│   │   ├── file_detail.html
+│   │   └── file_list.html
+│   ├── notifications/
+│   │   └── inbox_list.html
+│   ├── partials/
+│   │   ├── breadcrumbs.html
+│   │   ├── messages.html
+│   │   ├── navbar.html
+│   │   └── sidebar.html
+│   ├── powerbi/
+│   │   ├── group_detail.html
+│   │   ├── group_list.html
+│   │   └── report_embed.html
+│   ├── registration/
+│   │   ├── logged_out.html
+│   │   ├── login.html
+│   │   ├── password_reset_complete.html
+│   │   ├── password_reset_confirm.html
+│   │   ├── password_reset_done.html
+│   │   ├── password_reset_email.html
+│   │   ├── password_reset_form.html
+│   │   └── password_reset_subject.txt
+│   ├── settings/
+│   │   └── mappings/
+│   │       ├── segmentations/
+│   │       │   ├── detail.html
+│   │       │   ├── form.html
+│   │       │   └── list.html
+│   │       ├── domain_detail.html
+│   │       ├── domain_form.html
+│   │       ├── domain_list.html
+│   │       ├── group_form.html
+│   │       ├── group_list.html
+│   │       └── overview.html
+│   ├── users/
+│   │   ├── change_password.html
+│   │   ├── detail.html
+│   │   ├── form.html
+│   │   ├── list.html
+│   │   ├── profile.html
+│   │   └── profile_form.html
+│   └── base.html
+├── .env.example
+├── .gitignore
+├── DELIVERY_NOTES.md
+├── manage.py
+├── package.json
+├── PROJECT_TREE.txt
+├── pyproject.toml
+├── README.md
+├── requirements.txt
+└── tailwind.config.js

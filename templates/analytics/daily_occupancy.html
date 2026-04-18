@@ -1,0 +1,10 @@
+{% extends 'layouts/dashboard.html' %}
+{% block title %}Daily Occupancy · {{ APP_NAME }}{% endblock %}
+{% block content %}
+<div class="space-y-6">
+<form method="get" class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-3 dark:border-slate-800 dark:bg-slate-900">
+  {% for field in filter_form %}<div><label class="mb-1 block text-sm font-medium">{{ field.label }}</label>{{ field }}</div>{% endfor %}
+  <div class="md:col-span-3 flex gap-3"><button class="rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white dark:bg-slate-100 dark:text-slate-900">Apply Filters</button><a href="{{ request.path }}" class="rounded-2xl border border-slate-300 px-4 py-3">Reset</a></div>
+</form>
+<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{% for card in cards|slice:':4' %}{% include 'components/cards/kpi_card.html' with card=card %}{% endfor %}</div>{% include 'components/cards/chart_card.html' with title='Occupancy Trend' description='Daily occupancy percentage.' chart_config=primary_chart canvas_id='occupancy-primary-chart' script_id='occupancy-primary-chart-data' %}</div>
+{% endblock %}

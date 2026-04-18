@@ -1,0 +1,202 @@
+{% extends 'layouts/dashboard.html' %}
+{% load mapping_urls %}
+
+{% block title %}{{ page_title }} · {{ APP_NAME }}{% endblock %}
+
+{% block content %}
+{% if object and can_manage and current_level != 'detail' %}
+    {% if current_level == 'group' %}
+        {% url 'settings_mappings:group-delete' domain=domain.key pk=object.pk as delete_url %}
+    {% elif current_level == 'category' %}
+        {% url 'settings_mappings:category-delete' domain=domain.key pk=object.pk as delete_url %}
+    {% else %}
+        {% url 'settings_mappings:domain-delete' domain=domain.key pk=object.pk as delete_url %}
+    {% endif %}
+{% endif %}
+
+<div class="mx-auto max-w-4xl rounded-3xl border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <h1 class="text-2xl font-semibold">{{ page_title }}</h1>
+
+    <form method="post" class="mt-6 grid gap-4 md:grid-cols-2">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                {% for error in form.non_field_errors %}
+                    <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+            {% for error in hidden.errors %}
+                <div class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        {% for field in form.visible_fields %}
+            <div class="{% if field.name == 'notes' or field.name == 'description' %}md:col-span-2{% endif %}">
+                <label for="{{ field.id_for_label }}" class="mb-1 block text-sm font-medium">
+                    {{ field.label }}
+                </label>
+
+                {{ field }}
+
+                {% if field.help_text %}
+                    <p class="mt-1 text-xs text-slate-500">{{ field.help_text }}</p>
+                {% endif %}
+
+                {% for error in field.errors %}
+                    <p class="mt-1 text-xs text-rose-600">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        <div class="flex flex-wrap items-center gap-3 md:col-span-2">
+            <button type="submit" class="rounded-xl bg-blue-600 px-3.5 py-2 font-semibold text-white hover:bg-blue-700">
+                Save
+            </button>
+
+            <a href="{{ root_list_url }}"
+              onclick="if (document.referrer) { event.preventDefault(); history.back(); }"
+              class="rounded-xl border border-slate-300 px-3.5 py-2">
+                Cancel
+            </a>
+
+            {% if object and can_manage and current_level != 'detail' %}
+                <a href="{% append_query delete_url persistent_query %}"
+                  class="ml-auto rounded-xl border border-rose-300 bg-rose-50 px-3.5 py-2 font-semibold text-rose-700 hover:bg-rose-100 dark:border-rose-800 dark:bg-rose-950/30 dark:text-rose-300">
+                    Delete
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const propertyField = document.getElementById('id_property');
+  const groupField = document.getElementById('id_group');
+  const categoryField = document.getElementById('id_category');
+  const mappingField = document.getElementById('id_mapping');
+
+  if (groupField) groupField.dataset.selected = groupField.value || '';
+  if (categoryField) categoryField.dataset.selected = categoryField.value || '';
+  if (mappingField) mappingField.dataset.selected = mappingField.value || '';
+
+  function resetSelect(selectEl, placeholder) {
+    if (!selectEl) return;
+    selectEl.innerHTML = `<option value="">${placeholder}</option>`;
+  }
+
+  function loadOptions(url, targetSelect, placeholder, selectedValue = '') {
+    if (!targetSelect) return;
+
+    resetSelect(targetSelect, 'Loading...');
+
+    fetch(url, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        resetSelect(targetSelect, placeholder);
+
+        (data.results || []).forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.code ? `${item.code} - ${item.name}` : item.name;
+
+          if (selectedValue && String(selectedValue) === String(item.id)) {
+            option.selected = true;
+          }
+
+          targetSelect.appendChild(option);
+        });
+
+        targetSelect.dataset.selected = targetSelect.value || '';
+      })
+      .catch(() => {
+        resetSelect(targetSelect, placeholder);
+      });
+  }
+
+  function reloadDependentFields() {
+    if (!propertyField) return;
+
+    const propertyId = propertyField.value;
+
+    if (groupField) {
+      const selectedGroup = groupField.dataset.selected || groupField.value || '';
+      if (propertyId) {
+        loadOptions(
+          "{% url 'settings_mappings:group-options' domain=domain.key %}?property_id=" + propertyId,
+          groupField,
+          'Select group',
+          selectedGroup
+        );
+      } else {
+        resetSelect(groupField, 'Select group');
+      }
+    }
+
+    if (categoryField) {
+      const selectedCategory = categoryField.dataset.selected || categoryField.value || '';
+      if (propertyId) {
+        loadOptions(
+          "{% url 'settings_mappings:category-options' domain=domain.key %}?property_id=" + propertyId,
+          categoryField,
+          'Select category',
+          selectedCategory
+        );
+      } else {
+        resetSelect(categoryField, 'Select category');
+      }
+    }
+
+    if (mappingField) {
+      const selectedMapping = mappingField.dataset.selected || mappingField.value || '';
+      if (propertyId) {
+        loadOptions(
+          "{% url 'settings_mappings:mapping-options' domain=domain.key %}?property_id=" + propertyId,
+          mappingField,
+          'Select {{ domain.label|lower }}',
+          selectedMapping
+        );
+      } else {
+        resetSelect(mappingField, 'Select {{ domain.label|lower }}');
+      }
+    }
+  }
+
+  if (propertyField) {
+    propertyField.addEventListener('change', function () {
+      if (groupField) {
+        groupField.dataset.selected = '';
+        resetSelect(groupField, 'Select group');
+      }
+
+      if (categoryField) {
+        categoryField.dataset.selected = '';
+        resetSelect(categoryField, 'Select category');
+      }
+
+      if (mappingField) {
+        mappingField.dataset.selected = '';
+        resetSelect(mappingField, 'Select {{ domain.label|lower }}');
+      }
+
+      reloadDependentFields();
+    });
+
+    if (propertyField.value) {
+      reloadDependentFields();
+    }
+  }
+});
+</script>
+{% endblock %}

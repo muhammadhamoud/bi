@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block extra_head %}
+<style>
+  @layer utilities {
+    @media (min-width: 1024px) {
+      html.sidebar-expanded #sidebar {
+        width: 18rem;
+      }
+
+      html.sidebar-collapsed #sidebar {
+        width: 6rem;
+      }
+
+      html.sidebar-expanded #page-wrapper {
+        padding-left: 18rem;
+      }
+
+      html.sidebar-collapsed #page-wrapper {
+        padding-left: 6rem;
+      }
+    }
+
+    #top-header {
+      left: 0;
+      width: 100%;
+    }
+
+    @media (min-width: 1024px) {
+      html.sidebar-expanded #top-header {
+        left: 18rem;
+        width: calc(100% - 18rem);
+      }
+
+      html.sidebar-collapsed #top-header {
+        left: 6rem;
+        width: calc(100% - 6rem);
+      }
+    }
+
+    [x-cloak] {
+      display: none !important;
+    }
+
+    .glass {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+    }
+  }
+
+  #sidebar,
+  #page-wrapper,
+  #top-header {
+    transition:
+      width 220ms ease,
+      left 220ms ease,
+      padding-left 220ms ease,
+      transform 220ms ease,
+      opacity 220ms ease;
+  }
+
+  #content-stage {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+      opacity 220ms ease,
+      transform 220ms ease;
+    will-change: opacity, transform;
+  }
+
+  #content-stage.is-entering {
+    animation: content-fade-slide 260ms ease;
+  }
+
+  #content-stage.is-leaving {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  @keyframes content-fade-slide {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #sidebar,
+    #page-wrapper,
+    #top-header,
+    #content-stage {
+      transition: none !important;
+      animation: none !important;
+    }
+  }
+</style>
+
+    <script>
+        (function () {
+            const savedTheme = localStorage.getItem('theme') || 'auto';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const root = document.documentElement;
+
+            root.classList.remove('dark');
+            if (savedTheme === 'dark' || (savedTheme === 'auto' && prefersDark)) {
+                root.classList.add('dark');
+            }
+        })();
+    </script>
+
+    <script>
+        (function () {
+            const saved = localStorage.getItem('sidebarExpanded');
+            const expanded = saved !== null ? JSON.parse(saved) : true;
+            document.documentElement.classList.add(expanded ? 'sidebar-expanded' : 'sidebar-collapsed');
+        })();
+    </script>
+{% endblock %}
+
+{% block body %}
+
+
+
+<div
+    x-data="dashboardLayout()"
+    x-init="init()"
+    class="h-screen overflow-hidden bg-[linear-gradient(to_bottom,_#f8fafc,_#e2e8f0)] dark:bg-[radial-gradient(circle_at_top,_rgba(99,102,241,0.15),_transparent_35%),linear-gradient(to_bottom,_#020617,_#0f172a)]"
+>
+    <div
+        x-show="mobileSidebarOpen"
+        x-cloak
+        @click="mobileSidebarOpen = false"
+        class="fixed inset-0 z-30 bg-slate-950/60 backdrop-blur-sm lg:hidden"
+    ></div>
+            <!-- hx-boost="true"
+        hx-target="#main-content"
+        hx-select="#main-content"
+        hx-swap="innerHTML"
+        hx-push-url="true"
+        id="main-content" -->
+
+    <div class="flex h-full w-full overflow-hidden">
+        {% include 'partials/sidebar.html' %}
+
+        <div id="page-wrapper" class="flex flex-1 flex-col overflow-hidden">
+            {% block navbar %}
+                {% include 'partials/navbar.html' %}
+            {% endblock %}
+
+            <main
+                class="flex-1 overflow-y-auto px-4 pt-24 pb-6 sm:px-6 lg:px-8 lg:pb-8 [scrollbar-gutter:stable]"
+            >
+            {% include 'partials/breadcrumbs.html' %}
+              <div id="content-stage" class="is-entering">
+                  {% block content %}{% endblock %}
+              </div>
+            </main>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function dashboardLayout() {
+    const savedSidebar = localStorage.getItem('sidebarExpanded');
+    const savedTheme = localStorage.getItem('theme') || 'auto';
+
+    return {
+      sidebarExpanded: savedSidebar !== null ? JSON.parse(savedSidebar) : true,
+      mobileSidebarOpen: false,
+      theme: savedTheme,
+
+      init() {
+        this.applyTheme(this.theme);
+        this.applySidebarState(this.sidebarExpanded);
+
+        this.$watch('sidebarExpanded', value => {
+          localStorage.setItem('sidebarExpanded', JSON.stringify(value));
+          this.applySidebarState(value);
+        });
+
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+          if (this.theme === 'auto') {
+            this.applyTheme('auto');
+          }
+        });
+      },
+
+      applySidebarState(expanded) {
+        const root = document.documentElement;
+        root.classList.remove('sidebar-expanded', 'sidebar-collapsed');
+        root.classList.add(expanded ? 'sidebar-expanded' : 'sidebar-collapsed');
+      },
+
+      setTheme(mode) {
+        this.theme = mode;
+        localStorage.setItem('theme', mode);
+        this.applyTheme(mode);
+      },
+
+      applyTheme(mode) {
+        const root = document.documentElement;
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        root.classList.remove('dark');
+        if (mode === 'dark' || (mode === 'auto' && prefersDark)) {
+          root.classList.add('dark');
+        }
+      }
+    }
+  }
+</script>
+
+
+
+{% endblock %}

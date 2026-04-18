@@ -1,0 +1,18 @@
+{% if messages %}
+<div id="toast-container" class="pointer-events-none fixed bottom-4 left-1/2 z-[100] flex w-full max-w-sm flex-col gap-3" aria-live="polite" aria-atomic="true">
+  {% for message in messages %}
+    <div class="pointer-events-auto toast group relative overflow-hidden rounded-2xl border px-4 py-3 shadow-panel backdrop-blur transition duration-300 ease-out {% if 'success' in message.tags %}border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/80 dark:text-emerald-100{% elif 'warning' in message.tags %}border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/80 dark:text-amber-100{% elif 'error' in message.tags %}border-rose-200 bg-rose-50 text-rose-900 dark:border-rose-900/60 dark:bg-rose-950/80 dark:text-rose-100{% else %}border-sky-200 bg-white text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100{% endif %}" data-toast data-timeout="5000" role="status">
+      <div class="flex items-start gap-3">
+        <div class="mt-0.5 h-2.5 w-2.5 flex-none rounded-full {% if 'success' in message.tags %}bg-emerald-500{% elif 'warning' in message.tags %}bg-amber-500{% elif 'error' in message.tags %}bg-rose-500{% else %}bg-sky-500{% endif %}"></div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium leading-6">{{ message }}</p>
+        </div>
+        <button type="button" class="toast-dismiss inline-flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-black/5 hover:text-slate-600 dark:hover:bg-white/10 dark:hover:text-slate-200" aria-label="Dismiss message">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="toast-progress absolute inset-x-0 bottom-0 h-1 origin-left bg-black/10 dark:bg-white/10"></div>
+    </div>
+  {% endfor %}
+</div>
+{% endif %}
