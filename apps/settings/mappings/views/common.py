@@ -73,7 +73,10 @@ class MappingOverviewView(MappingAccessMixin, BreadcrumbMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        accessible_properties = get_accessible_properties(self.request.user)
         context.update(mapping_overview_metrics(self.request.user))
+        
+        context["has_multiple_properties"] =accessible_properties.count() > 1
         context['breadcrumbs'] = [
             ('Dashboard', reverse('dashboard:home')),
             ('Settings', ''),
@@ -1027,6 +1030,82 @@ class DomainDetailInlineMappingUpdateView(BaseDomainInlineUpdateView):
         config = self.get_domain()
         if not config.get('has_details'):
             raise Http404('This mapping domain does not support detail/mapping inline updates.')
+        return super().dispatch(request, *args, **kwargs)
+
+
+class BaseDomainInlineTextUpdateView(MappingManageMixin, DomainViewMixin, View):
+    model_key = None
+    field_name = None
+    partial_template_name = 'settings/mappings/partials/inline_text_cell.html'
+    display_fallback = '—'
+
+    def get_model_class(self):
+        return self.get_domain()[self.model_key]
+
+    def get_object_queryset(self):
+        model = self.get_model_class()
+        return filter_queryset_for_user(
+            model.objects.select_related(*self.get_select_related_fields_for_model(model)),
+            self.request.user,
+        )
+
+    def get_field_value(self, obj):
+        value = getattr(obj, self.field_name, '')
+        return value if value not in [None, ''] else self.display_fallback
+
+    def clean_value(self, value):
+        return (value or '').strip()
+
+    def get(self, request, *args, **kwargs):
+        obj = get_object_or_404(self.get_object_queryset(), pk=kwargs['pk'])
+        return self.render_cell(obj)
+
+    def post(self, request, *args, **kwargs):
+        obj = get_object_or_404(self.get_object_queryset(), pk=kwargs['pk'])
+
+        if self.field_name not in request.POST:
+            return HttpResponseBadRequest(f'Missing {self.field_name}.')
+
+        value = self.clean_value(request.POST.get(self.field_name))
+
+        if not value:
+            return HttpResponseBadRequest(f'{self.field_name} cannot be empty.')
+
+        setattr(obj, self.field_name, value)
+        obj.save(update_fields=[self.field_name])
+        obj.refresh_from_db()
+
+        return self.render_cell(obj)
+
+    def user_can_manage(self):
+        return can_manage_mappings(self.request.user)
+
+
+    def render_cell(self, obj):
+        return render(
+            self.request,
+            self.partial_template_name,
+            {
+                'object': obj,
+                'field_name': self.field_name,
+                'display_value': self.get_field_value(obj),
+                'raw_value': getattr(obj, self.field_name, '') or '',
+                'post_url_name': self.request.resolver_match.view_name,
+                'domain_key': self.kwargs.get('domain'),
+                'domain': self.get_domain(),
+                'can_manage': self.user_can_manage(),
+            },
+        )
+
+
+class DomainDetailInlineNameUpdateView(BaseDomainInlineTextUpdateView):
+    model_key = 'detail_model'
+    field_name = 'name'
+
+    def dispatch(self, request, *args, **kwargs):
+        config = self.get_domain()
+        if not config.get('has_details'):
+            raise Http404('This mapping domain does not support detail/name inline updates.')
         return super().dispatch(request, *args, **kwargs)
 
 

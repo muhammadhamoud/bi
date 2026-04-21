@@ -2,24 +2,34 @@
 module.exports = {
   darkMode: 'class',
   content: [
-    './templates/**/*.{html,js}',
-    './apps/**/*.{py,html}',
+    './templates/**/*.html',
+    './apps/**/*.py',
+    './static/**/*.js',
   ],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
       colors: {
         brand: {
-          50: '#eef5ff',
-          100: '#d9e8ff',
-          500: '#1d4ed8',
-          600: '#1e40af',
-          700: '#1d3a8a',
-          900: '#0f172a'
-        }
+          50: '#edeff1',
+          100: '#d7dce0',
+          200: '#b8c0c8',
+          300: '#909da8',
+          400: '#5f7282',
+          500: '#213b52',
+          600: '#1e354a',
+          700: '#1a2e40',
+          800: '#152634',
+          900: '#101e29',
+          950: '#0c151e',
+        },
       },
       boxShadow: {
-        panel: '0 8px 30px rgba(15, 23, 42, 0.08)'
-      }
+        soft: '0 10px 30px rgba(2, 6, 23, 0.08)',
+        panel: '0 8px 30px rgba(15, 23, 42, 0.18)',
+      },
     },
   },
   plugins: [],

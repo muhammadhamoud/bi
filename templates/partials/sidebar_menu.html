@@ -1,0 +1,53 @@
+{% for section in sidebar_menu %}
+    <div>
+        {% if section.card %}
+            <div class="sidebar-card rounded-2xl border border-slate-200 p-3 dark:border-slate-800">
+                <p class="sidebar-section-label mb-2 px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    {{ section.title }}
+                </p>
+
+                <div class="space-y-1 sidebar-group-links">
+                    {% for item in section.items %}
+                        <a href="{{ item.url }}"
+                           class="sidebar-link flex w-full items-center justify-between rounded-2xl px-3 py-2 text-[13px] font-medium transition {% if item.active %}bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-panel{% else %}text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900{% endif %}">
+                            <span class="sidebar-link-inner flex items-center gap-3">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-xl {% if item.active %}bg-white/10 text-white{% else %}{{ item.icon_classes }}{% endif %}">
+                                    {% if item.icon %}
+                                        <i class="{{ item.icon }} w-4 text-center"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="sidebar-label">{{ item.label }}</span>
+                            </span>
+
+                            <i class="sidebar-label fas fa-chevron-right text-[11px] {% if item.active %}text-white/80{% else %}text-slate-400{% endif %}"></i>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <div class="space-y-2">
+                <p class="sidebar-section-label mb-3 px-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
+                    {{ section.title }}
+                </p>
+
+                <nav class="space-y-2">
+                    {% for item in section.items %}
+                        <a href="{{ item.url }}"
+                           class="sidebar-link flex w-full items-center justify-between rounded-2xl px-3 py-2 text-left text-[13px] font-medium transition {% if item.active %}bg-gradient-to-r from-brand-600 to-cyan-600 text-white shadow-panel{% else %}text-slate-700 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white{% endif %}">
+                            <span class="sidebar-link-inner flex items-center gap-3">
+                                <span class="flex h-8 w-8 items-center justify-center rounded-xl {% if item.active %}bg-white/10 text-white{% else %}{{ item.icon_classes }}{% endif %}">
+                                    {% if item.icon %}
+                                        <i class="{{ item.icon }} w-4 text-center"></i>
+                                    {% endif %}
+                                </span>
+                                <span class="sidebar-label">{{ item.label }}</span>
+                            </span>
+
+                            <i class="sidebar-label fas fa-chevron-right text-[11px] {% if item.active %}text-white/80{% else %}text-slate-400{% endif %}"></i>
+                        </a>
+                    {% endfor %}
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}

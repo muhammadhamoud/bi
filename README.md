@@ -130,3 +130,13 @@ The Settings > Mappings area includes:
 - WhiteNoise is enabled for static file serving.
 - `config/settings/` provides split settings for development and production.
 - Review secure cookie, host, and SSL settings before deployment.
+
+
+
+echo "# bi" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/muhammadhamoud/bi.git
+git push -u origin main

@@ -8,6 +8,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 load_dotenv(BASE_DIR / '.env')
 
 APP_NAME = 'ROInsight'
+APP_SLOGAN="Hospitality Intelligance"
+APP_LOGO = "img/logo.svg"
+
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'unsafe-demo-secret-key')
 DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() == 'true'
 ALLOWED_HOSTS = [host.strip() for host in os.getenv('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if host.strip()]
@@ -63,6 +66,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'apps.core.common.context_processors.global_ui',
+                'apps.core.common.context_processors.app_navigation',
                 "apps.powerbi.embedded.context_processors.report_menu",
             ],
         },

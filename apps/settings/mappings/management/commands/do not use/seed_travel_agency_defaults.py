@@ -1,17 +1,20 @@
-# apps/settings/mappings/management/commands/seed_room_type_defaults.py
+# apps/settings/mappings/management/commands/seed_travel_agency_defaults.py
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from apps.properties.core.models import Property
-from apps.settings.mappings.data.room_type_defaults import seed_default_room_types_for_property
+from apps.settings.mappings.data_dontuse.travel_agency_defaults import (
+    seed_default_travel_agencies_for_property,
+)
 
-# python manage.py seed_room_type_defaults --property-code P6
-# python manage.py seed_room_type_defaults --property-id 1000
-# python manage.py seed_room_type_defaults --all
+# python manage.py seed_travel_agency_defaults --property-code P6
+# python manage.py seed_travel_agency_defaults --property-id 1000
+# python manage.py seed_travel_agency_defaults --all
+
 
 class Command(BaseCommand):
-    help = 'Seed predefined room type groups, categories, and mappings for one or more properties.'
+    help = 'Seed predefined travel agency groups, categories, and mappings for one or more properties.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -53,9 +56,9 @@ class Command(BaseCommand):
             raise CommandError('No matching properties found.')
 
         for property_obj in properties.order_by('id'):
-            seed_default_room_types_for_property(property_obj, actor=None)
+            seed_default_travel_agencies_for_property(property_obj, actor=None)
             self.stdout.write(
                 self.style.SUCCESS(
-                    f'Seeded room type defaults for property {property_obj.code} - {property_obj.name}'
+                    f'Seeded travel agency defaults for property {property_obj.code} - {property_obj.name}'
                 )
             )

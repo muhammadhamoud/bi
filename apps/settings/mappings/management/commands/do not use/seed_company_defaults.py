@@ -1,18 +1,20 @@
-# apps/settings/mappings/management/commands/seed_package_defaults.py
+# apps/settings/mappings/management/commands/seed_company_defaults.py
 
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
 from apps.properties.core.models import Property
-from apps.settings.mappings.data.package_defaults import seed_default_packages_for_property
+from apps.settings.mappings.data_dontuse.company_defaults import (
+    seed_default_company_industries_for_property,
+)
 
-# python manage.py seed_package_defaults --property-code P6
-# python manage.py seed_package_defaults --property-id 1000
-# python manage.py seed_package_defaults --all
+# python manage.py seed_company_defaults --property-code P6
+# python manage.py seed_company_defaults --property-id 1000
+# python manage.py seed_company_defaults --all
 
 
 class Command(BaseCommand):
-    help = 'Seed predefined package groups, categories, and mappings for one or more properties.'
+    help = 'Seed predefined company industry groups, categories, and mappings for one or more properties.'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -54,9 +56,9 @@ class Command(BaseCommand):
             raise CommandError('No matching properties found.')
 
         for property_obj in properties.order_by('id'):
-            seed_default_packages_for_property(property_obj, actor=None)
+            seed_default_company_industries_for_property(property_obj, actor=None)
             self.stdout.write(
                 self.style.SUCCESS(
-                    f'Seeded package defaults for property {property_obj.code} - {property_obj.name}'
+                    f'Seeded company defaults for property {property_obj.code} - {property_obj.name}'
                 )
             )

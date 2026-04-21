@@ -3,7 +3,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from apps.properties.core.models import Property
-from bi.apps.settings.mappings.data.segment_defaults import seed_default_segments_for_property
+from bi.apps.settings.mappings.data_dontuse.segment_defaults import seed_default_segments_for_property
 
 
 class Command(BaseCommand):

@@ -4,6 +4,16 @@ from django.contrib import admin
 from django.shortcuts import redirect
 from django.urls import include, path
 
+def superuser_only_has_permission(request):
+    user = request.user
+    return bool(
+        user.is_authenticated and
+        user.is_active and
+        user.is_superuser
+    )
+
+
+admin.site.has_permission = superuser_only_has_permission
 admin.site.site_header = 'ROInsight Administration'
 admin.site.site_title = 'ROInsight Admin'
 admin.site.index_title = 'Platform administration'
@@ -16,6 +26,7 @@ def root_redirect(request):
 urlpatterns = [
     path('', root_redirect, name='root'),
     path('admin/', admin.site.urls),
+    # path('admin/', admin_site.urls),
     path('accounts/', include('apps.usermanagement.users.auth_urls')),
     path('dashboard/', include(('apps.dashboard.home.urls', 'dashboardhome'), namespace='dashboard')),
     path('users/', include(('apps.usermanagement.users.urls', 'usercore'), namespace='users')),

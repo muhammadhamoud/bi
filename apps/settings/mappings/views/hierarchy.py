@@ -1,17 +1,12 @@
-
-
-
 from collections import defaultdict
 
-from django.db.models import Count, Q, Sum
-from django.db.models.functions import Coalesce
 from django.http import Http404, JsonResponse
 from django.urls import reverse
 from django.views import View
 from django.views.generic import TemplateView
 
 from apps.core.common.access import filter_queryset_for_user, get_accessible_properties
-from apps.settings.mappings.views.common import DomainViewMixin, MappingAccessMixin, MappingManageMixin
+from apps.settings.mappings.views.common import DomainViewMixin, MappingAccessMixin
 from apps.core.common.mixins import BreadcrumbMixin
 
 
@@ -37,16 +32,20 @@ class DomainHierarchyTreeView(MappingAccessMixin, BreadcrumbMixin, DomainViewMix
             (domain['label'], reverse('settings_mappings:domain-list', kwargs={'domain': self.kwargs['domain']})),
             ('Hierarchy', ''),
         ]
+        context['can_manage'] = self.user_can_manage(self.request.user)
         return context
 
+    def user_can_manage(self, user):
+        return user.is_superuser or user.has_perm('propertycore.manage_mappings')
 
-class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
+
+class DomainHierarchyTreeDataView(MappingAccessMixin, DomainViewMixin, View):
     def get(self, request, *args, **kwargs):
         domain = self.get_domain()
         property_id = request.GET.get('property_id')
 
         if not property_id:
-            return JsonResponse({'results': []})
+            return JsonResponse({'results': [], 'can_manage': self.user_can_manage(request.user)})
 
         group_model = domain.get('group_model')
         category_model = domain.get('category_model')
@@ -55,9 +54,10 @@ class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
 
         has_category = domain.get('has_category', False)
         has_details = domain.get('has_details', False)
+        can_manage = self.user_can_manage(request.user)
 
         if not group_model or not mapping_model:
-            return JsonResponse({'results': []})
+            return JsonResponse({'results': [], 'can_manage': can_manage})
 
         groups_qs = filter_queryset_for_user(
             group_model.objects.filter(property_id=property_id, is_active=True),
@@ -131,12 +131,14 @@ class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
                 mapping = getattr(detail, 'mapping', None)
                 if not mapping:
                     continue
+
                 detail_children[mapping.id].append({
                     'id': detail.id,
                     'code': getattr(detail, 'code', ''),
                     'name': getattr(detail, 'name', ''),
                     'count': detail_room_value_by_detail.get(detail.id, 0),
-                    'edit_url': reverse('settings_mappings:detail-update', kwargs={'domain': self.kwargs['domain'], 'pk': detail.id}),
+                    'edit_url': reverse('settings_mappings:detail-update', kwargs={'domain': self.kwargs['domain'], 'pk': detail.id}) if can_manage else None,
+                    'can_manage': can_manage,
                 })
 
         for mapping in mappings_qs:
@@ -152,7 +154,8 @@ class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
                 'count': count_value,
                 'detail_room_sum': detail_room_sum_by_mapping.get(mapping.id, 0),
                 'children': detail_children.get(mapping.id, []),
-                'edit_url': reverse('settings_mappings:domain-update', kwargs={'domain': self.kwargs['domain'], 'pk': mapping.id}),
+                'edit_url': reverse('settings_mappings:domain-update', kwargs={'domain': self.kwargs['domain'], 'pk': mapping.id}) if can_manage else None,
+                'can_manage': can_manage,
             }
 
             if has_category and getattr(mapping, 'category_id', None):
@@ -168,7 +171,8 @@ class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
                     'name': getattr(category, 'name', ''),
                     'count': detail_count_by_category.get(category.id, 0) if has_details else len(category_children.get(category.id, [])),
                     'children': category_children.get(category.id, []),
-                    'edit_url': reverse('settings_mappings:category-update', kwargs={'domain': self.kwargs['domain'], 'pk': category.id}),
+                    'edit_url': reverse('settings_mappings:category-update', kwargs={'domain': self.kwargs['domain'], 'pk': category.id}) if can_manage else None,
+                    'can_manage': can_manage,
                 }
                 category_children[('group', category.group_id)].append(category_node)
 
@@ -187,7 +191,14 @@ class DomainHierarchyTreeDataView(MappingManageMixin, DomainViewMixin, View):
                 'name': getattr(group, 'name', ''),
                 'count': count_value,
                 'children': children,
-                'edit_url': reverse('settings_mappings:group-update', kwargs={'domain': self.kwargs['domain'], 'pk': group.id}),
+                'edit_url': reverse('settings_mappings:group-update', kwargs={'domain': self.kwargs['domain'], 'pk': group.id}) if can_manage else None,
+                'can_manage': can_manage,
             })
 
-        return JsonResponse({'results': results})
+        return JsonResponse({
+            'results': results,
+            'can_manage': can_manage,
+        })
+
+    def user_can_manage(self, user):
+        return user.is_superuser or user.has_perm('propertycore.manage_mappings')

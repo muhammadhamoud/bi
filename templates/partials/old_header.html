@@ -35,6 +35,7 @@
           </select>
         </form>
       {% endif %}
+
       <a href="{% url 'announcements:list' %}" class="relative rounded-full border border-slate-200 p-2 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">
         📣
         {% if active_announcements_count %}<span class="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-amber-500 px-1 text-[10px] font-semibold text-white">{{ active_announcements_count }}</span>{% endif %}
@@ -58,6 +59,7 @@
           </div>
         </div>
       </div>
+      
       <button type="button" data-theme-toggle class="rounded-full border border-slate-200 px-3 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">Theme</button>
       <div class="group relative">
         <button type="button" class="rounded-full border border-slate-200 px-3 py-2 text-sm hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-900">{{ request.user.first_name|default:request.user.email|truncatechars:10 }}</button>

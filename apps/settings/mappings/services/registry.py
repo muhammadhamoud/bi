@@ -137,8 +137,8 @@ def build_domain_config(
             f'dark:group-hover:text-{color}-400 '
             f'dark:group-hover:border-{color}-700'
         ),
-        'button_class': f'bg-{color}-600 dark:bg-{color}-500',
-        'button_hover_class': f'hover:bg-{color}-700 dark:hover:bg-{color}-400',
+        'button_class': f'bg-{color}-500 dark:bg-{color}-400',
+        'button_hover_class': f'hover:bg-{color}-600 dark:hover:bg-{color}-300',
         'has_group': has_group,
         'has_category': has_category,
         'has_details': has_details,

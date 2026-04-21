@@ -8,7 +8,7 @@
 
 {% block content %}
 <div class="space-y-6">
-    <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
         <div class="grid gap-4 md:grid-cols-3">
             <div>
                 <label for="property-select" class="mb-1 block text-sm font-medium">Property</label>
@@ -24,7 +24,7 @@
         </div>
     </section>
 
-    <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section class="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900">
         <div id="hierarchy-tree"></div>
     </section>
 </div>
@@ -33,6 +33,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     const propertySelect = document.getElementById('property-select');
     const treeContainer = document.getElementById('hierarchy-tree');
+    const pageCanManage = {{ can_manage|yesno:"true,false" }};
 
     function emptyState(message) {
         return `<div class="rounded-2xl border border-dashed border-slate-300 px-4 py-10 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">${message}</div>`;
@@ -46,6 +47,24 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
     }
 
+    function renderTitle(item, extraClass = '') {
+        const canManage = item.can_manage ?? pageCanManage;
+
+        if (canManage && item.edit_url) {
+            return `
+                <a href="${item.edit_url}" class="${extraClass}">
+                    ${item.name || ''}
+                </a>
+            `;
+        }
+
+        return `
+            <div class="${extraClass}">
+                ${item.name || ''}
+            </div>
+        `;
+    }
+
     function detailChips(details) {
         if (!details || !details.length) {
             return `<div class="mt-2 text-[11px] text-slate-400">No details</div>`;
@@ -53,13 +72,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return `
             <div class="mt-3 flex flex-wrap justify-center gap-2">
-                ${details.map(detail => `
-                    <a href="${detail.edit_url || '#'}"
-                       class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                ${details.map(detail => {
+                    const canManage = detail.can_manage ?? pageCanManage;
+                    const content = `
                         <span class="font-medium">${detail.code || ''}</span>
                         ${badge(detail.count || 0)}
-                    </a>
-                `).join('')}
+                    `;
+
+                    if (canManage && detail.edit_url) {
+                        return `
+                            <a href="${detail.edit_url}"
+                               class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 hover:border-blue-300 hover:bg-blue-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                                ${content}
+                            </a>
+                        `;
+                    }
+
+                    return `
+                        <span class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[11px] text-slate-700 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                            ${content}
+                        </span>
+                    `;
+                }).join('')}
             </div>
         `;
     }
@@ -69,13 +103,15 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="relative flex flex-col items-center">
                 <div class="mb-3 h-4 w-px bg-slate-300 dark:bg-slate-700"></div>
 
-                <div class="w-56 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center shadow-sm dark:border-slate-700 dark:bg-slate-900">
+                <div class="w-56 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-center shadow-soft dark:border-slate-700 dark:bg-slate-900">
                     <div class="absolute right-3 top-3">
                         ${badge(mapping.count || 0)}
                     </div>
-                    <a href="${mapping.edit_url || '#'}" class="block pr-8 text-sm font-semibold text-slate-900 hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-400">
-                        ${mapping.name || ''}
-                    </a>
+                    ${renderTitle(
+                        mapping,
+                        'block pr-8 text-sm font-semibold text-slate-900 dark:text-slate-100' +
+                        ((mapping.can_manage ?? pageCanManage) && mapping.edit_url ? ' hover:text-blue-600 dark:hover:text-blue-400' : '')
+                    )}
                     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">${mapping.code || '—'}</div>
                     ${detailChips(mapping.children)}
                 </div>
@@ -88,13 +124,15 @@ document.addEventListener('DOMContentLoaded', function () {
             <div class="relative flex min-w-[280px] flex-col items-center">
                 <div class="mb-4 h-5 w-px bg-slate-300 dark:bg-slate-700"></div>
 
-                <div class="relative w-64 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-center shadow-sm dark:border-blue-900/50 dark:bg-blue-500/10">
+                <div class="relative w-64 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-center shadow-soft dark:border-blue-900/50 dark:bg-blue-500/10">
                     <div class="absolute right-3 top-3">
                         ${badge(category.count || 0)}
                     </div>
-                    <a href="${category.edit_url || '#'}" class="block pr-8 text-sm font-semibold text-slate-900 hover:text-blue-700 dark:text-slate-100 dark:hover:text-blue-400">
-                        ${category.name || ''}
-                    </a>
+                    ${renderTitle(
+                        category,
+                        'block pr-8 text-sm font-semibold text-slate-900 dark:text-slate-100' +
+                        ((category.can_manage ?? pageCanManage) && category.edit_url ? ' hover:text-blue-700 dark:hover:text-blue-400' : '')
+                    )}
                     <div class="mt-1 text-xs text-slate-600 dark:text-slate-300">${category.code || '—'}</div>
                 </div>
 
@@ -110,13 +148,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
         return `
             <div class="flex min-w-[320px] flex-col items-center">
-                <div class="relative w-72 rounded-3xl border border-slate-300 bg-slate-50 px-5 py-4 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800/80">
+                <div class="relative w-72 rounded-3xl border border-slate-300 bg-slate-50 px-5 py-4 text-center shadow-soft dark:border-slate-700 dark:bg-slate-800/80">
                     <div class="absolute right-4 top-4">
                         ${badge(group.count || 0)}
                     </div>
-                    <a href="${group.edit_url || '#'}" class="block pr-10 text-base font-semibold text-slate-900 hover:text-blue-600 dark:text-slate-100 dark:hover:text-blue-400">
-                        ${group.name || ''}
-                    </a>
+                    ${renderTitle(
+                        group,
+                        'block pr-10 text-base font-semibold text-slate-900 dark:text-slate-100' +
+                        ((group.can_manage ?? pageCanManage) && group.edit_url ? ' hover:text-blue-600 dark:hover:text-blue-400' : '')
+                    )}
                     <div class="mt-1 text-sm text-slate-600 dark:text-slate-300">${group.code || '—'}</div>
                 </div>
 
@@ -140,6 +180,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         treeContainer.innerHTML = `
             <div class="overflow-x-auto pb-2">
+                <div class="mb-4 flex items-center justify-between gap-3">
+                    <div class="text-sm text-slate-500 dark:text-slate-400">
+                        ${pageCanManage ? 'You can open items to manage them.' : 'Read-only view. You can browse the hierarchy but cannot manage it.'}
+                    </div>
+                </div>
+
                 <div class="flex min-w-max items-start gap-8">
                     ${groups.map(group => groupNode(group)).join('')}
                 </div>

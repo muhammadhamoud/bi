@@ -3,9 +3,9 @@
 {% block content %}
 <div class="space-y-6">
 
-<form method="get" class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-3 dark:border-slate-800 dark:bg-slate-900">
+<form method="get" class="grid gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-soft md:grid-cols-3 dark:border-slate-800 dark:bg-slate-900">
   {% for field in filter_form %}<div><label class="mb-1 block text-sm font-medium">{{ field.label }}</label>{{ field }}</div>{% endfor %}
-  <div class="md:col-span-3 flex gap-3"><button class="rounded-2xl bg-slate-900 px-4 py-3 font-semibold text-white dark:bg-slate-100 dark:text-slate-900">Apply Filters</button><a href="{{ request.path }}" class="rounded-2xl border border-slate-300 px-4 py-3">Reset</a></div>
+  <div class="md:col-span-3 flex gap-3"><button class="rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700">Apply Filters</button><a href="{{ request.path }}" class="rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">Reset</a></div>
 </form>
 
   <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{% for card in cards %}{% include 'components/cards/kpi_card.html' with card=card %}{% endfor %}</div>
@@ -13,6 +13,6 @@
     {% include 'components/cards/chart_card.html' with title='Daily Occupancy' description='Occupancy percentage by day.' chart_config=occupancy_chart canvas_id='executive-occupancy-chart' script_id='executive-occupancy-chart-data' %}
     {% include 'components/cards/chart_card.html' with title='Revenue Trend' description='Total revenue by day.' chart_config=revenue_chart canvas_id='executive-revenue-chart' script_id='executive-revenue-chart-data' %}
   </div>
-  <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"><h3 class="text-lg font-semibold">Quick Insights</h3><ul class="mt-4 space-y-2 text-sm">{% for insight in insights %}<li class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">{{ insight }}</li>{% endfor %}</ul></div>
+  <div class="rounded-3xl border border-slate-200 bg-white p-5 shadow-soft dark:border-slate-800 dark:bg-slate-900"><h3 class="text-lg font-semibold">Quick Insights</h3><ul class="mt-4 space-y-2 text-sm">{% for insight in insights %}<li class="rounded-2xl bg-slate-50 px-4 py-3 dark:bg-slate-800">{{ insight }}</li>{% endfor %}</ul></div>
 </div>
 {% endblock %}

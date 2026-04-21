@@ -1,0 +1,81 @@
+<td class="px-2 py-1 align-middle">
+    {% if can_manage %}
+        <div
+            x-data="{
+                editing: false,
+                hovering: false,
+                value: '{{ display_value|default:'—'|escapejs }}'
+            }"
+            class="w-full"
+        >
+            <button
+                type="button"
+                x-show="!editing"
+                @click="$nextTick(() => { editing = true; $refs.input.focus(); $refs.input.select(); })"
+                @mouseenter="hovering = true"
+                @mouseleave="hovering = false"
+                class="flex w-full items-center justify-between gap-2 rounded-lg px-2 py-0.5 text-left hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+                <span class="min-w-0 flex-1 truncate">
+                    <span
+                        class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold"
+                        :class="value === '—'
+                            ? 'text-red-700 dark:text-red-400'
+                            : 'text-slate-900 dark:text-slate-100'"
+                    >
+                        <i
+                            class="fas text-[10px]"
+                            :class="value === '—' ? 'fa-circle-exclamation' : 'fa-pen'"
+                            aria-hidden="true"
+                        ></i>
+                        <span x-text="value"></span>
+                    </span>
+                </span>
+
+                <i
+                    x-show="hovering"
+                    x-cloak
+                    class="fas fa-chevron-down text-[10px] text-slate-400"
+                    aria-hidden="true"
+                ></i>
+            </button>
+
+            <div x-show="editing" x-cloak class="w-full">
+                <input
+                    x-ref="input"
+                    type="text"
+                    name="{{ field_name }}"
+                    value="{{ raw_value }}"
+                    class="w-full rounded-lg border border-slate-300 px-2 py-0.5 text-sm dark:border-slate-700 dark:bg-slate-900"
+                    hx-post="{% url post_url_name domain=domain_key pk=object.pk %}"
+                    hx-trigger="change, blur"
+                    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+                    hx-include="this"
+                    hx-target="closest td"
+                    hx-swap="outerHTML"
+                    @keydown.enter="$event.target.blur()"
+                    @keydown.escape="editing = false"
+                    @blur="editing = false"
+                    @change="value = $event.target.value || '—'; editing = false"
+                >
+            </div>
+        </div>
+    {% else %}
+        <div class="w-full px-2 py-0.5">
+            <span
+                class="inline-flex items-center gap-1.5 px-2 py-0.5 text-xs font-bold
+                {% if display_value and display_value != '—' %}
+                    text-slate-700 dark:text-slate-200
+                {% else %}
+                    text-red-700 dark:text-red-400
+                {% endif %}"
+            >
+                <i
+                    class="fas text-[10px] {% if display_value and display_value != '—' %}fa-font{% else %}fa-circle-exclamation{% endif %}"
+                    aria-hidden="true"
+                ></i>
+                {{ display_value|default:'—' }}
+            </span>
+        </div>
+    {% endif %}
+</td>

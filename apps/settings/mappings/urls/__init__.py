@@ -11,6 +11,7 @@ from apps.settings.mappings.views.common import (
     DomainDetailCreateView,
     DomainDetailDetailView,
     DomainDetailInlineMappingUpdateView,
+    DomainDetailInlineNameUpdateView,
     DomainDetailListView,
     DomainDetailUpdateView,
     DomainGroupCreateView,
@@ -30,10 +31,14 @@ from apps.settings.mappings.views.common import (
     MappingOverviewView,
 )
 from apps.settings.mappings.views.hierarchy import DomainHierarchyTreeDataView, DomainHierarchyTreeView
+from apps.settings.mappings.views.copy import MappingCopyView
+from apps.settings.mappings.views.bulk_copy import BulkMappingCopyView
 
 urlpatterns = [
     path('', MappingOverviewView.as_view(), name='overview'),
     # path('segmentations/', include('apps.settings.mappings.urls.segmentations')),
+
+    path( "copy-between-properties/", BulkMappingCopyView.as_view(), name="mapping_bulk_copy"),
 
     path('<slug:domain>/groups/', DomainGroupListView.as_view(), name='group-list'),
     path('<slug:domain>/groups/new/', DomainGroupCreateView.as_view(), name='group-create'),
@@ -55,6 +60,10 @@ urlpatterns = [
     path('<slug:domain>/categories/<int:pk>/inline/group/', DomainCategoryInlineGroupUpdateView.as_view(), name='category-inline-group-update'),
     path('<slug:domain>/<int:pk>/inline/category/', DomainMappingInlineCategoryUpdateView.as_view(), name='mapping-inline-category-update'),
     path('<slug:domain>/details/<int:pk>/inline/mapping/', DomainDetailInlineMappingUpdateView.as_view(), name='detail-inline-mapping-update'),
+
+    path('<str:domain>/detail/<int:pk>/inline-name-update/',DomainDetailInlineNameUpdateView.as_view(),name='detail-inline-name-update'),
+
+
     path('<slug:domain>/details/bulk-mapping-update/', DetailBulkMappingUpdateView.as_view(), name='detail-bulk-mapping-update'),
 
 
@@ -74,8 +83,12 @@ urlpatterns = [
     path('<slug:domain>/categories/<int:pk>/delete/', DomainCategoryDeleteView.as_view(), name='category-delete'),
     path('<slug:domain>/<int:pk>/delete/', DomainMappingDeleteView.as_view(), name='domain-delete'),
 
+    path(
+        "<str:domain_key>/property/<uuid:property_id>/copy/",
+        MappingCopyView.as_view(),
+        name="mapping_copy",
+    ),
 
-    
 
 ]
 

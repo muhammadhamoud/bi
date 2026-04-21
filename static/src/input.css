@@ -1,9 +1,38 @@
-@tailwind base;
+/* @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
-@layer components {
+/* @layer components {
   .panel-card {
     @apply rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900;
   }
+} */
+
+
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-50:  #edeff1;
+  --color-brand-100: #d7dce0;
+  --color-brand-200: #b8c0c8;
+  --color-brand-300: #909da8;
+  --color-brand-400: #5f7282;
+  --color-brand-500: #213b52;
+  --color-brand-600: #1e354a;
+  --color-brand-700: #1a2e40;
+  --color-brand-800: #152634;
+  --color-brand-900: #101e29;
+  --color-brand-950: #0c151e;
+
+  --shadow-soft: 0 10px 30px rgba(2, 6, 23, 0.08);
+  --shadow-panel: 0 8px 30px rgba(15, 23, 42, 0.18);
 }
+
+@source "../../../templates/**/*.html";
+@source "../../../apps/**/*.py";
+@source "../../../static/**/*.js";

@@ -1,1 +1,1 @@
-from apps.settings.mappings.data import *
+# Data-only modules for mapping defaults.

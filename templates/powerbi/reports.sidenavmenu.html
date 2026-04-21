@@ -8,7 +8,7 @@
   <div class="flex items-center gap-2">
     <a
       href="{% url 'powerbi:group-list' %}"
-      class="sidebar-link flex min-w-0 flex-1 items-center justify-between rounded-2xl px-3 py-2 transition {% if request.resolver_match.namespace == 'powerbi' and request.resolver_match.url_name == 'group-list' %}bg-blue-600 text-white shadow-sm{% else %}text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900{% endif %}"
+      class="sidebar-link flex min-w-0 flex-1 items-center justify-between rounded-2xl px-3 py-2 transition {% if request.resolver_match.namespace == 'powerbi' and request.resolver_match.url_name == 'group-list' %}bg-blue-600 text-white shadow-soft{% else %}text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900{% endif %}"
     >
       <span class="sidebar-link-inner flex items-center gap-3">
         <span class="flex h-9 w-9 items-center justify-center rounded-xl {% if request.resolver_match.namespace == 'powerbi' and request.resolver_match.url_name == 'group-list' %}bg-white/10 text-white{% else %}bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400{% endif %}">
@@ -60,7 +60,7 @@
       {% for group in report_menu %}
         <a
           href="{{ group.url }}"
-          class="sidebar-link flex items-center justify-between rounded-2xl px-3 py-2 transition {% if request.path == group.url %}bg-blue-600 text-white shadow-sm{% else %}text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900{% endif %}"
+          class="sidebar-link flex items-center justify-between rounded-2xl px-3 py-2 transition {% if request.path == group.url %}bg-blue-600 text-white shadow-soft{% else %}text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-900{% endif %}"
         >
           <span class="sidebar-link-inner flex items-center gap-3">
             <span class="flex h-8 w-8 items-center justify-center rounded-xl {% if request.path == group.url %}bg-white/10 text-white{% else %}{{ group.group_icon_class|default:'bg-sky-100 text-sky-700 dark:bg-sky-500/10 dark:text-sky-400' }}{% endif %}">

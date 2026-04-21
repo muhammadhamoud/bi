@@ -15,7 +15,12 @@ from apps.core.common.access import (
 
 def global_ui(request):
     context = {
-        'APP_NAME': settings.APP_NAME,
+        # 'APP_NAME': settings.APP_NAME,
+        # 'APP_SLOGAN': settings.APP_NAME,
+        # 'APP_LOGO': settings.APP_NAME,
+        "APP_NAME": getattr(settings, "APP_NAME", "ROInsight"),
+        "APP_SLOGAN": getattr(settings, "APP_SLOGAN", ""),
+        "APP_LOGO": getattr(settings, "APP_LOGO", "img/logo.png"),
         'TAILWIND_USE_CDN': settings.TAILWIND_USE_CDN,
         'available_properties': [],
         'current_property': None,
@@ -64,3 +69,30 @@ def global_ui(request):
         }
     )
     return context
+
+
+
+# def sidebar_navigation(request):
+#     if not request.user.is_authenticated:
+#         return {"sidebar_menu": []}
+
+#     return {
+#         "sidebar_menu": build_sidebar_menu(request),
+#     }
+
+
+from apps.core.common.header_navigation import build_header_menu
+from apps.core.common.sidebar_navigation import build_sidebar_menu
+
+
+def app_navigation(request):
+    if not request.user.is_authenticated:
+        return {
+            "sidebar_menu": [],
+            "header_menu": [],
+        }
+
+    return {
+        "sidebar_menu": build_sidebar_menu(request),
+        "header_menu": build_header_menu(request),
+    }

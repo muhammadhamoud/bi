@@ -27,7 +27,7 @@
 {% url 'settings_mappings:domain-hierarchy-tree' domain=domain.key as hierarchy_url %}
 
 <div class="space-y-6">
-    <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section class="rounded-3xl border border-slate-200 bg-white p-4 shadow-soft dark:border-slate-800 dark:bg-slate-900">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div class="min-w-0 flex-1">
                 <nav>
@@ -106,16 +106,14 @@
                     <i class="fas fa-download text-xs" aria-hidden="true"></i>
                     <span>Export</span>
                 </a>
-
-                <a
-                    href="{% append_query hierarchy_url persistent_query %}"
-                    class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
-                >
-                    <i class="fas fa-sitemap text-xs" aria-hidden="true"></i>
-                    <span>Hierarchy</span>
-                </a>
-
                 {% if can_manage %}
+                    <a
+                        href="{% append_query hierarchy_url persistent_query %}"
+                        class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800"
+                    >
+                        <i class="fas fa-sitemap text-xs" aria-hidden="true"></i>
+                        <span>Hierarchy</span>
+                    </a>
                     {% if current_level == 'detail' %}
                         <a
                             href="{% append_query detail_create_url persistent_query %}"
@@ -154,7 +152,7 @@
         </div>
     </section>
 
-    <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+    <section class="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-soft dark:border-slate-800 dark:bg-slate-900">
         <div class="border-b border-slate-200 px-4 py-4 dark:border-slate-800 sm:px-6">
             <div class="flex items-center justify-between gap-3">
                 <div>
@@ -323,7 +321,8 @@
 
                 <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.property.name }}</td>
                 <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
-                <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name|default:'—' }}</td>
+                <!-- <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name|default:'—' }}</td> -->
+                 {% include 'settings/mappings/partials/inline_text_cell.html' with object=object display_value=object.name|default:'—' raw_value=object.name|default:'' field_name='name' post_url_name='settings_mappings:detail-inline-name-update' domain_key=domain.key can_manage=can_manage %}
 
                 {% if domain.has_category %}
                     <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">
@@ -331,7 +330,7 @@
                     </td>
                 {% endif %}
 
-                {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.mapping.name|default:'—' field_name='mapping' current_related_id=object.mapping_id options=mapping_options_by_property|get_item:object.property_id post_url_name='settings_mappings:detail-inline-mapping-update' domain_key=domain.key %}
+                {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.mapping.name|default:'—' field_name='mapping' current_related_id=object.mapping_id options=mapping_options_by_property|get_item:object.property_id post_url_name='settings_mappings:detail-inline-mapping-update' domain_key=domain.key can_manage=can_manage %}
 
                 <td class="px-2 py-1.5">
                     {% if object.is_active %}
@@ -372,7 +371,7 @@
                 <td class="whitespace-nowrap px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.code }}</td>
                 <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">{{ object.name }}</td>
 
-                {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.group.name|default:'—' field_name='group' current_related_id=object.group_id options=group_options_by_property|get_item:object.property_id post_url_name='settings_mappings:category-inline-group-update' domain_key=domain.key %}
+                {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.group.name|default:'—' field_name='group' current_related_id=object.group_id options=group_options_by_property|get_item:object.property_id post_url_name='settings_mappings:category-inline-group-update' domain_key=domain.key can_manage=can_manage %}
 
                 <td class="px-2 py-1.5">
                     {% if object.is_active %}
@@ -415,7 +414,7 @@
                 {% endif %}
 
                 {% if domain.has_category %}
-                    {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.category.name|default:'—' field_name='category' current_related_id=object.category_id options=category_options_by_property|get_item:object.property_id post_url_name='settings_mappings:mapping-inline-category-update' domain_key=domain.key %}
+                    {% include 'settings/mappings/partials/inline_relation_cell.html' with object=object display_value=object.category.name|default:'—' field_name='category' current_related_id=object.category_id options=category_options_by_property|get_item:object.property_id post_url_name='settings_mappings:mapping-inline-category-update' domain_key=domain.key can_manage=can_manage %}
                 {% endif %}
 
                 <td class="px-2 py-1.5">
@@ -498,7 +497,7 @@
     </section>
 
     {% if is_paginated %}
-        <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-4 shadow-sm md:flex-row md:items-center md:justify-between dark:border-slate-800 dark:bg-slate-900">
+        <div class="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-4 shadow-soft md:flex-row md:items-center md:justify-between dark:border-slate-800 dark:bg-slate-900">
             <div class="text-sm text-slate-600 dark:text-slate-300">
                 Showing
                 <span class="font-semibold">{{ page_obj.start_index }}</span>

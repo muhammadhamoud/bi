@@ -1,0 +1,48 @@
+{% for item in header_menu %}
+    {% if item.type == "icon_link" %}
+        <div class="relative">
+            <a href="{{ item.url }}"
+               class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/70 text-slate-700 shadow-soft transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+               aria-label="{{ item.label }}"
+               title="{{ item.label }}">
+                <i class="{{ item.icon }} text-base"></i>
+            </a>
+        </div>
+
+    {% elif item.type == "link" %}
+        <a href="{{ item.url }}" class="{{ item.link_classes }}">
+            {% if item.icon %}
+                <i class="{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+        </a>
+
+    {% elif item.type == "button" %}
+        <button type="button" class="{{ item.button_classes }}">
+            {% if item.icon %}
+                <i class="{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+        </button>
+
+    {% elif item.type == "hover_dropdown" %}
+        {% include "partials/header/hover_dropdown.html" with item=item %}
+
+    {% elif item.type == "click_dropdown" %}
+        {% include "partials/header/click_dropdown.html" with item=item %}
+
+    {% elif item.type == "custom" %}
+        {% if item.component == "announcements_icon" %}
+            {% include "partials/nav_items/announcements.html" %}
+        {% elif item.component == "notifications_menu" %}
+            {% include "partials/nav_items/notifications.html" %}
+        {% elif item.component == "property_switcher" %}
+            {% include "partials/nav_items/property.html" %}
+        {% elif item.component == "theme_toggle" %}
+            {% include "partials/nav_items/themes.html" %}
+        {% elif item.component == "user_menu" %}
+            {% include "partials/nav_items/user.html" %}
+        {% endif %}
+    {% endif %}
+
+{% endfor %}

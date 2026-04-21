@@ -1,0 +1,41 @@
+{% for item in header_menu %}
+    {% if item.type == "icon_link" %}
+        <div class="relative">
+            <a href="{{ item.url }}"
+               class="relative inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white/70 text-slate-700 shadow-soft transition hover:bg-white dark:border-white/10 dark:bg-white/5 dark:text-slate-200 dark:hover:bg-white/10"
+               aria-label="{{ item.label }}">
+                <i class="{{ item.icon }} text-base"></i>
+            </a>
+        </div>
+
+    {% elif item.type == "link" %}
+        <a href="{{ item.url }}"
+           class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-900 dark:text-slate-200 dark:hover:bg-slate-800 dark:hover:text-white">
+            {% if item.icon %}
+                <i class="{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+        </a>
+
+    {% elif item.type == "button" %}
+        <button type="button"
+                class="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-soft transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+            {% if item.icon %}
+                <i class="{{ item.icon }}"></i>
+            {% endif %}
+            <span>{{ item.label }}</span>
+        </button>
+
+    {% elif item.type == "hover_dropdown" %}
+        {% include "partials/header/hover_dropdown.html" with item=item %}
+
+    {% elif item.type == "custom" %}
+        {% if item.component == "property_switcher" %}
+            {% include "partials/nav_items/property.html" %}
+        {% elif item.component == "theme_toggle" %}
+            {% include "partials/nav_items/themes.html" %}
+        {% elif item.component == "user_menu" %}
+            {% include "partials/nav_items/user.html" %}
+        {% endif %}
+    {% endif %}
+{% endfor %}

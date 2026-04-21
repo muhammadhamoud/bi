@@ -1,0 +1,12 @@
+<label class="inline-flex cursor-pointer items-center">
+    <input
+        type="checkbox"
+        class="sr-only"
+        :checked="theme === 'dark'"
+        @change="setTheme($event.target.checked ? 'dark' : 'light')"
+    >
+
+    <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-700 shadow-soft transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">
+        <i :class="theme === 'dark' ? 'fas fa-moon' : 'fas fa-sun'"></i>
+    </span>
+</label>
