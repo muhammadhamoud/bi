@@ -9,3 +9,4 @@ static/css/tailwind.css
 media/
 logs/
 .DS_Store
+var/
