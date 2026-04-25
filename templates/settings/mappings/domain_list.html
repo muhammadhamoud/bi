@@ -55,23 +55,25 @@
                                 {% endif %}
                             </a>
                         {% endif %}
+                        {% if domain.has_mapping %}
+                            <a
+                                href="{% append_query domain_list_url persistent_query %}"
+                                class="relative pb-3 text-sm font-medium transition {% if current_level == 'mapping' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
+                            >
+                                {{ domain.label }}{% if not domain.has_details %}s{% endif %}
+                                {% if current_level == 'mapping' %}
+                                    <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
+                                {% endif %}
+                            </a>
+                        {% endif %}
 
-                        <a
-                            href="{% append_query domain_list_url persistent_query %}"
-                            class="relative pb-3 text-sm font-medium transition {% if current_level == 'mapping' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
-                        >
-                            {{ domain.label }}{% if not domain.has_details %}s{% endif %}
-                            {% if current_level == 'mapping' %}
-                                <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
-                            {% endif %}
-                        </a>
 
                         {% if domain.has_details %}
                             <a
                                 href="{% append_query detail_list_url persistent_query %}"
                                 class="relative pb-3 text-sm font-medium transition {% if current_level == 'detail' %}text-blue-600 dark:text-blue-400{% else %}text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white{% endif %}"
                             >
-                                Details
+                                {{ domain.label }}{% if not domain.has_details %}{% endif %} Details
                                 {% if current_level == 'detail' %}
                                     <span class="absolute inset-x-0 bottom-0 h-0.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
                                 {% endif %}
@@ -168,6 +170,7 @@
 
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+
 <thead class="bg-slate-50 dark:bg-slate-800">
     <tr>
         {% if current_level == 'detail' %}
@@ -177,6 +180,8 @@
             <th class="w-[25%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Name</th>
             {% if domain.has_category %}
                 <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Category</th>
+            {% elif domain.key == 'rate-codes' %}
+                <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Origin</th>
             {% endif %}
             <th class="w-[20%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">{{ domain.label }}</th>
             <th class="w-[15%] px-2 py-1.5 text-left font-medium text-slate-600 dark:text-slate-300">Active</th>
@@ -216,8 +221,12 @@
 <tbody class="divide-y divide-slate-200 dark:divide-slate-800">
     {% if current_level == 'detail' and can_manage and objects and not bulk_mapping_enabled %}
         <tr>
-            <td
+            <!-- <td
                 colspan="{% if domain.has_category %}8{% else %}7{% endif %}"
+                class="border-b border-slate-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-slate-800 dark:bg-amber-500/10 dark:text-amber-300"
+            > -->
+            <td
+                colspan="{% if domain.has_category or domain.key == 'rate-codes' %}8{% else %}7{% endif %}"
                 class="border-b border-slate-200 bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:border-slate-800 dark:bg-amber-500/10 dark:text-amber-300"
             >
                 Select a single property in filters to enable bulk mapping.
@@ -249,7 +258,7 @@
             </td>
 
 
-            {% if domain.has_category %}
+            {% if domain.has_category or domain.key == 'rate-codes' %}
                 <td class="border-b border-slate-200 px-2 py-2 dark:border-slate-800"></td>
             {% endif %}
 
@@ -327,6 +336,10 @@
                 {% if domain.has_category %}
                     <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">
                         {{ object.mapping.category.name|default:'—' }}
+                    </td>
+                {% elif domain.key == 'rate-codes' %}
+                    <td class="px-2 py-1.5 text-slate-700 dark:text-slate-200">
+                        {{ object.origin.name|default:'—' }}
                     </td>
                 {% endif %}
 
@@ -483,8 +496,12 @@
         </tr>
     {% empty %}
         <tr>
-            <td
+            <!-- <td
                 colspan="{% if current_level == 'detail' %}{% if domain.has_category %}8{% else %}7{% endif %}{% elif current_level == 'category' %}6{% elif current_level == 'mapping' and domain.has_group and domain.has_category %}7{% elif current_level == 'mapping' and domain.has_group %}6{% else %}5{% endif %}"
+                class="px-4 py-12"
+            > -->
+            <td
+                colspan="{% if current_level == 'detail' %}{% if domain.has_category or domain.key == 'rate-codes' %}8{% else %}7{% endif %}{% elif current_level == 'category' %}6{% elif current_level == 'mapping' and domain.has_group and domain.has_category %}7{% elif current_level == 'mapping' and domain.has_group %}6{% else %}5{% endif %}"
                 class="px-4 py-12"
             >
                 {% include 'components/empty_state.html' with title='No records found' message='Create a new mapping record or update your filters.' %}

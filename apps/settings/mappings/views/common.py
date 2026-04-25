@@ -68,6 +68,7 @@ class MappingManageMixin(MappingAccessMixin):
 
         return super().dispatch(request, *args, **kwargs)
 
+
 class MappingOverviewView(MappingAccessMixin, BreadcrumbMixin, TemplateView):
     template_name = 'settings/mappings/overview.html'
 
@@ -121,11 +122,23 @@ class DomainViewMixin:
         url = reverse(url_name, kwargs=kwargs)
         return self.with_persistent_query(url)
 
+    # def get_root_list_url(self):
+    #     config = self.get_domain()
+    #     if config.get('has_details') and config.get('detail_model'):
+    #         return reverse('settings_mappings:detail-list', kwargs={'domain': self.kwargs['domain']})
+    #     return reverse('settings_mappings:domain-list', kwargs={'domain': self.kwargs['domain']})
+
     def get_root_list_url(self):
         config = self.get_domain()
+
         if config.get('has_details') and config.get('detail_model'):
             return reverse('settings_mappings:detail-list', kwargs={'domain': self.kwargs['domain']})
-        return reverse('settings_mappings:domain-list', kwargs={'domain': self.kwargs['domain']})
+
+        if config.get('has_mapping', True) and config.get('mapping_model'):
+            return reverse('settings_mappings:domain-list', kwargs={'domain': self.kwargs['domain']})
+
+        raise Http404('This mapping domain has no list view configured.')
+    
 
     def get_root_list_url_with_filters(self):
         return self.with_persistent_query(self.get_root_list_url())
@@ -150,6 +163,46 @@ class DomainViewMixin:
     def get_queryset(self):
         return self.get_base_queryset()
 
+    # def get_select_related_fields_for_model(self, model):
+    #     field_names = self.get_model_field_names(model)
+    #     select_related_fields = ['property']
+
+    #     if 'group' in field_names:
+    #         select_related_fields.append('group')
+
+    #     if 'category' in field_names:
+    #         select_related_fields.append('category')
+    #         try:
+    #             category_model = model._meta.get_field('category').related_model
+    #             if self.model_has_field(category_model, 'group'):
+    #                 select_related_fields.append('category__group')
+    #         except Exception:
+    #             pass
+
+    #     if 'mapping' in field_names:
+    #         select_related_fields.append('mapping')
+    #         try:
+    #             mapping_model = model._meta.get_field('mapping').related_model
+    #             mapping_field_names = self.get_model_field_names(mapping_model)
+
+    #             if 'category' in mapping_field_names:
+    #                 select_related_fields.append('mapping__category')
+    #                 try:
+    #                     category_model = mapping_model._meta.get_field('category').related_model
+    #                     if self.model_has_field(category_model, 'group'):
+    #                         select_related_fields.append('mapping__category__group')
+    #                 except Exception:
+    #                     pass
+    #             elif 'group' in mapping_field_names:
+    #                 select_related_fields.append('mapping__group')
+    #         except Exception:
+    #             pass
+
+    #     if 'source_system' in field_names:
+    #         select_related_fields.append('source_system')
+
+    #     return select_related_fields
+
     def get_select_related_fields_for_model(self, model):
         field_names = self.get_model_field_names(model)
         select_related_fields = ['property']
@@ -161,8 +214,16 @@ class DomainViewMixin:
             select_related_fields.append('category')
             try:
                 category_model = model._meta.get_field('category').related_model
-                if self.model_has_field(category_model, 'group'):
+                category_field_names = self.get_model_field_names(category_model)
+
+                if 'group' in category_field_names:
                     select_related_fields.append('category__group')
+                elif 'mapping' in category_field_names:
+                    select_related_fields.extend([
+                        'category__mapping',
+                        'category__mapping__category',
+                        'category__mapping__category__group',
+                    ])
             except Exception:
                 pass
 
@@ -176,8 +237,16 @@ class DomainViewMixin:
                     select_related_fields.append('mapping__category')
                     try:
                         category_model = mapping_model._meta.get_field('category').related_model
-                        if self.model_has_field(category_model, 'group'):
+                        category_field_names = self.get_model_field_names(category_model)
+
+                        if 'group' in category_field_names:
                             select_related_fields.append('mapping__category__group')
+                        elif 'mapping' in category_field_names:
+                            select_related_fields.extend([
+                                'mapping__category__mapping',
+                                'mapping__category__mapping__category',
+                                'mapping__category__mapping__category__group',
+                            ])
                     except Exception:
                         pass
                 elif 'group' in mapping_field_names:
@@ -187,6 +256,9 @@ class DomainViewMixin:
 
         if 'source_system' in field_names:
             select_related_fields.append('source_system')
+
+        if 'origin' in field_names:
+            select_related_fields.append('origin')
 
         return select_related_fields
 
@@ -217,6 +289,28 @@ class DomainViewMixin:
             except Exception:
                 pass
 
+        # if 'mapping' in field_names:
+        #     search_q |= Q(mapping__code__icontains=q) | Q(mapping__name__icontains=q)
+        #     try:
+        #         mapping_model = model._meta.get_field('mapping').related_model
+        #         mapping_field_names = self.get_model_field_names(mapping_model)
+
+        #         if 'category' in mapping_field_names:
+        #             search_q |= Q(mapping__category__code__icontains=q) | Q(mapping__category__name__icontains=q)
+        #             try:
+        #                 category_model = mapping_model._meta.get_field('category').related_model
+        #                 if self.model_has_field(category_model, 'group'):
+        #                     search_q |= (
+        #                         Q(mapping__category__group__code__icontains=q) |
+        #                         Q(mapping__category__group__name__icontains=q)
+        #                     )
+        #             except Exception:
+        #                 pass
+        #         elif 'group' in mapping_field_names:
+        #             search_q |= Q(mapping__group__code__icontains=q) | Q(mapping__group__name__icontains=q)
+        #     except Exception:
+        #         pass
+
         if 'mapping' in field_names:
             search_q |= Q(mapping__code__icontains=q) | Q(mapping__name__icontains=q)
             try:
@@ -227,13 +321,25 @@ class DomainViewMixin:
                     search_q |= Q(mapping__category__code__icontains=q) | Q(mapping__category__name__icontains=q)
                     try:
                         category_model = mapping_model._meta.get_field('category').related_model
-                        if self.model_has_field(category_model, 'group'):
+                        category_field_names = self.get_model_field_names(category_model)
+
+                        if 'group' in category_field_names:
                             search_q |= (
                                 Q(mapping__category__group__code__icontains=q) |
                                 Q(mapping__category__group__name__icontains=q)
                             )
+                        elif 'mapping' in category_field_names:
+                            search_q |= (
+                                Q(mapping__category__mapping__code__icontains=q) |
+                                Q(mapping__category__mapping__name__icontains=q) |
+                                Q(mapping__category__mapping__category__code__icontains=q) |
+                                Q(mapping__category__mapping__category__name__icontains=q) |
+                                Q(mapping__category__mapping__category__group__code__icontains=q) |
+                                Q(mapping__category__mapping__category__group__name__icontains=q)
+                            )
                     except Exception:
                         pass
+
                 elif 'group' in mapping_field_names:
                     search_q |= Q(mapping__group__code__icontains=q) | Q(mapping__group__name__icontains=q)
             except Exception:
@@ -260,6 +366,45 @@ class DomainViewMixin:
                 ordering.extend(['sort_order', 'name'])
             return ordering
 
+        # if 'mapping' in field_names:
+        #     try:
+        #         mapping_model = model._meta.get_field('mapping').related_model
+        #         mapping_field_names = self.get_model_field_names(mapping_model)
+
+        #         if 'category' in mapping_field_names:
+        #             category_model = mapping_model._meta.get_field('category').related_model
+        #             if self.model_has_field(category_model, 'group'):
+        #                 ordering.extend([
+        #                     'mapping__category__group__sort_order',
+        #                     'mapping__category__sort_order',
+        #                     'mapping__sort_order',
+        #                     'sort_order',
+        #                     'name',
+        #                 ])
+        #                 return ordering
+        #             ordering.extend([
+        #                 'mapping__category__sort_order',
+        #                 'mapping__sort_order',
+        #                 'sort_order',
+        #                 'name',
+        #             ])
+        #             return ordering
+
+        #         if 'group' in mapping_field_names:
+        #             ordering.extend([
+        #                 'mapping__group__sort_order',
+        #                 'mapping__sort_order',
+        #                 'sort_order',
+        #                 'name',
+        #             ])
+        #             return ordering
+
+        #         ordering.extend(['mapping__sort_order', 'sort_order', 'name'])
+        #         return ordering
+        #     except Exception:
+        #         ordering.extend(['sort_order', 'name'])
+        #         return ordering
+        
         if 'mapping' in field_names:
             try:
                 mapping_model = model._meta.get_field('mapping').related_model
@@ -267,7 +412,9 @@ class DomainViewMixin:
 
                 if 'category' in mapping_field_names:
                     category_model = mapping_model._meta.get_field('category').related_model
-                    if self.model_has_field(category_model, 'group'):
+                    category_field_names = self.get_model_field_names(category_model)
+
+                    if 'group' in category_field_names:
                         ordering.extend([
                             'mapping__category__group__sort_order',
                             'mapping__category__sort_order',
@@ -276,6 +423,18 @@ class DomainViewMixin:
                             'name',
                         ])
                         return ordering
+
+                    if 'mapping' in category_field_names:
+                        ordering.extend([
+                            'mapping__category__mapping__category__group__sort_order',
+                            'mapping__category__mapping__category__sort_order',
+                            'mapping__category__sort_order',
+                            'mapping__sort_order',
+                            'sort_order',
+                            'name',
+                        ])
+                        return ordering
+
                     ordering.extend([
                         'mapping__category__sort_order',
                         'mapping__sort_order',
@@ -298,7 +457,7 @@ class DomainViewMixin:
             except Exception:
                 ordering.extend(['sort_order', 'name'])
                 return ordering
-
+    
         if 'sort_order' in field_names and 'name' in field_names:
             ordering.extend(['sort_order', 'name'])
         elif 'sort_order' in field_names and 'code' in field_names:
@@ -381,24 +540,58 @@ class DomainViewMixin:
         #         mapping_options_by_property[obj.property_id].append(obj)
         #     context['mapping_options_by_property'] = dict(mapping_options_by_property)
 
-        if config.get('mapping_model'):
-            mapping_options_by_property = defaultdict(list)
+        mapping_qs = None
+        mapping_options_by_property = defaultdict(list)
+        mapping_source_model = None
+
+        if config.get('has_mapping', True) and config.get('mapping_model'):
+            mapping_source_model = config['mapping_model']
+        elif getattr(self, 'current_level', None) == 'detail' and config.get('detail_model'):
+            detail_model = config['detail_model']
+            detail_field_names = self.get_model_field_names(detail_model)
+
+            if 'mapping' in detail_field_names:
+                mapping_source_model = detail_model._meta.get_field('mapping').related_model
+
+        if mapping_source_model is not None:
             mapping_qs = filter_queryset_for_user(
-                config['mapping_model'].objects.filter(is_active=True).select_related(
-                    *self.get_select_related_fields_for_model(config['mapping_model'])
+                mapping_source_model.objects.filter(is_active=True).select_related(
+                    *self.get_select_related_fields_for_model(mapping_source_model)
                 ),
                 self.request.user,
-            ).order_by(*self.get_ordering_for_model(config['mapping_model']))
+            ).order_by(*self.get_ordering_for_model(mapping_source_model))
 
             for obj in mapping_qs:
                 mapping_options_by_property[obj.property_id].append(obj)
-            context['mapping_options_by_property'] = dict(mapping_options_by_property)
+
+        context['mapping_options_by_property'] = dict(mapping_options_by_property)
+
+        # if getattr(self, 'current_level', None) == 'detail':
+        #     page_items = context.get('page_obj').object_list if context.get('page_obj') else context.get('object_list', [])
+        #     property_ids = sorted({obj.property_id for obj in page_items if getattr(obj, 'property_id', None)})
+
+        #     if len(property_ids) == 1:
+        #         property_id = property_ids[0]
+        #         bulk_mapping_qs = mapping_qs.filter(property_id=property_id)
+
+        #         context['bulk_mapping_enabled'] = True
+        #         context['bulk_mapping_options'] = [
+        #             {
+        #                 'id': obj.id,
+        #                 'name': getattr(obj, 'name', str(obj)),
+        #                 'category_name': getattr(getattr(obj, 'category', None), 'name', ''),
+        #             }
+        #             for obj in bulk_mapping_qs
+        #         ]
+        #     else:
+        #         context['bulk_mapping_enabled'] = False
+        #         context['bulk_mapping_options'] = []
 
         if getattr(self, 'current_level', None) == 'detail':
             page_items = context.get('page_obj').object_list if context.get('page_obj') else context.get('object_list', [])
             property_ids = sorted({obj.property_id for obj in page_items if getattr(obj, 'property_id', None)})
 
-            if len(property_ids) == 1:
+            if mapping_qs is not None and len(property_ids) == 1:
                 property_id = property_ids[0]
                 bulk_mapping_qs = mapping_qs.filter(property_id=property_id)
 
@@ -414,7 +607,7 @@ class DomainViewMixin:
             else:
                 context['bulk_mapping_enabled'] = False
                 context['bulk_mapping_options'] = []
-
+        
         return context
 
     def reset_review_required_if_present(self, form):
@@ -437,6 +630,28 @@ class DomainViewMixin:
                 queryset = queryset.filter(is_review_required=False)
 
         return queryset
+
+    def render_domain_not_found(self, message, status=404):
+        config = self.get_domain()
+        domain_slug = self.kwargs.get(self.domain_key_url_kwarg, '')
+
+        return render(
+            self.request,
+            'errors/inline_404.html',
+            {
+                'page_title': 'Page not found',
+                'message': message,
+                'domain': config,
+                'domain_slug': domain_slug,
+                'breadcrumbs': [
+                    ('Dashboard', reverse('dashboard:home')),
+                    ('Settings', ''),
+                    ('Mappings', reverse('settings_mappings:overview')),
+                    ('Not found', ''),
+                ],
+            },
+            status=status,
+        )
 
 
 class BaseDomainCreateView(MappingManageMixin, AuditFormMixin, BreadcrumbMixin, DomainViewMixin, CreateView):

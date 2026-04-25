@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     'apps.powerbi.embedded.apps.PowerBIEmbeddedConfig',
     'apps.dataops.files.apps.DataOpsFilesConfig',
     'apps.settings.mappings.apps.SettingsMappingsConfig',
+
+    "apps.roi_ingestion.apps.RoiIngestionConfig",
 ]
 
 MIDDLEWARE = [
@@ -90,6 +92,17 @@ DATABASES = {
             "options": f"-c search_path={os.getenv('DB_SCHEMA', 'core')},public",
         },
     },
+    "roi_staging": {
+        "ENGINE": os.getenv("DB_ENGINE", "django.db.backends.postgresql"),
+        "NAME": os.getenv("DB_NAME", "django"),
+        "USER": os.getenv("DB_USER", "postgres"),
+        "PASSWORD": os.getenv("DB_PASSWORD", "postgres"),
+        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("DB_PORT", "5432"),
+        "OPTIONS": {
+            "options": f"-c search_path={os.getenv('DB_SCHEMA', 'data')},public",
+        },
+    },
 }
 
 # Dynamic app -> database mapping
@@ -99,7 +112,23 @@ APP_DATABASE_MAPPING = {
 
 DATABASE_ROUTERS = [
     # "config.db_routers.DynamicAppRouter",
+    "apps.roi_ingestion.db_router.RoiStagingRouter",
 ]
+
+ROI_FILE_RECORD_MODEL = "apps.dataops.files.models.FileRecord"
+ROI_SOURCE_SYSTEM_MODEL = "apps.dataops.files.models.SourceSystem"
+ROI_EXPECTED_FILE_DEFINITION_MODEL = "apps.dataops.files.models.ExpectedFileDefinition"
+ROI_PROPERTY_MODEL = "apps.properties.core.models.Property"
+
+SFTP_HOST = os.getenv("SFTP_HOST", "sftp.example.com")
+SFTP_PORT = os.getenv("SFTP_PORT", 22)
+SFTP_USERNAME = os.getenv("SFTP_USERNAME", "roi_user")
+SFTP_PASSWORD = os.getenv("SFTP_PASSWORD", "") # optional
+SFTP_PRIVATE_KEY = os.getenv("SFTP_PRIVATE_KEY", "") # optional
+SFTP_REMOTE_DIR = os.getenv("SFTP_REMOTE_DIR", "/outbound/roi")
+SFTP_ARCHIVE_DIR = os.getenv("SFTP_ARCHIVE_DIR", "/archive/roi") # optional
+ROI_LOCAL_DOWNLOAD_DIR = os.getenv("ROI_LOCAL_DOWNLOAD_DIR", BASE_DIR / "var" / "roi_downloads")
+
 
 AUTH_USER_MODEL = 'usercore.User'
 AUTHENTICATION_BACKENDS = [

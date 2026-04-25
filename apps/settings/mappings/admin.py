@@ -31,10 +31,10 @@ from apps.settings.mappings.models import (
     PackageDetail,
     PackageGroup,
     PackageMapping,
-    RateCodeCategory,
     RateCodeDetail,
-    RateCodeGroup,
-    RateCodeMapping,
+    # RateCodeCategory,
+    # RateCodeGroup,
+    # RateCodeMapping,
     RoomTypeCategory,
     RoomTypeDetail,
     RoomTypeGroup,
@@ -132,9 +132,9 @@ register_hierarchy_admin(GuestCountryGroup, GuestCountryCategory, GuestCountryMa
 register_hierarchy_admin(LoyaltyGroup, LoyaltyCategory, LoyaltyMapping, LoyaltyDetail)
 register_hierarchy_admin(OriginGroup, OriginCategory, OriginMapping, OriginDetail)
 register_hierarchy_admin(PackageGroup, PackageCategory, PackageMapping, PackageDetail)
-register_hierarchy_admin(RateCodeGroup, RateCodeCategory, RateCodeMapping, RateCodeDetail)
 register_hierarchy_admin(TravelAgentGroup, TravelAgentCategory, TravelAgentMapping, TravelAgentDetail)
 register_hierarchy_admin(BookingSourceGroup, BookingSourceCategory, BookingSourceMapping, BookingSourceDetail)
+# register_hierarchy_admin(RateCodeGroup, RateCodeCategory, RateCodeMapping, RateCodeDetail)
 # register_hierarchy_admin(DayOfWeekGroup, DayOfWeekMapping)
 
 
@@ -164,3 +164,78 @@ def register_simple_admin(group_model, mapping_model):
 
 
 register_simple_admin(DayOfWeekGroup, DayOfWeekMapping)
+
+
+
+
+class RateCodeMappingAdmin(PropertyScopedAdmin):
+    autocomplete_fields = PropertyScopedAdmin.autocomplete_fields + ('category',)
+    list_display = ('name', 'code', 'property', 'category', 'group', 'sort_order', 'is_active')
+    search_fields = (
+        'name',
+        'code',
+        'description',
+        'property__name',
+        'property__code',
+        'category__name',
+        'category__code',
+    )
+    list_filter = PropertyScopedAdmin.list_filter + ('category',)
+    list_select_related = (
+        'property',
+        'category',
+        'category__mapping',
+        'category__mapping__category',
+        'category__mapping__category__group',
+    )
+
+
+class RateCodeDetailAdmin(HierarchyDetailAdmin):
+    autocomplete_fields = PropertyScopedAdmin.autocomplete_fields + ('mapping', 'origin', 'source_system')
+    list_display = (
+        'name',
+        'code',
+        'property',
+        'mapping',
+        'category',
+        'group',
+        'origin',
+        'source_system',
+        'sort_order',
+        'is_active',
+    )
+    search_fields = (
+        'name',
+        'code',
+        'description',
+        'notes',
+        'property__name',
+        'property__code',
+        'mapping__name',
+        'mapping__code',
+        'mapping__segment__name',
+        'mapping__segment__code',
+        'origin__name',
+        'origin__code',
+        'source_system__name',
+        'source_system__code',
+    )
+    list_filter = PropertyScopedAdmin.list_filter + (
+        'mapping',
+        'origin',
+        'source_system',
+    )
+    list_select_related = (
+        'property',
+        'mapping',
+        'mapping__segment',
+        'mapping__segment__mapping',
+        'mapping__segment__mapping__category',
+        'mapping__segment__mapping__category__group',
+        'origin',
+        'source_system',
+    )
+
+
+# admin.site.register(RateCodeMapping, RateCodeMappingAdmin)
+admin.site.register(RateCodeDetail, RateCodeDetailAdmin)

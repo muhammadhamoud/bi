@@ -1,0 +1,6 @@
+Django>=4.2
+celery>=5.3
+paramiko>=3.4
+pip >=5.0
+pytest>=8.0
+pi>=4.8

@@ -47,7 +47,7 @@
     }
   }
 
-  #sidebar,
+  /* #sidebar,
   #page-wrapper,
   #top-header {
     transition:
@@ -95,7 +95,9 @@
       transition: none !important;
       animation: none !important;
     }
-  }
+  } */
+
+
 </style>
 
     <script>
@@ -135,12 +137,6 @@
         @click="mobileSidebarOpen = false"
         class="fixed inset-0 z-30 bg-slate-950/60 backdrop-blur-sm lg:hidden"
     ></div>
-            <!-- hx-boost="true"
-        hx-target="#main-content"
-        hx-select="#main-content"
-        hx-swap="innerHTML"
-        hx-push-url="true"
-        id="main-content" -->
 
     <div class="flex h-full w-full overflow-hidden">
         {% include 'partials/sidebar.html' %}
@@ -150,13 +146,21 @@
                 {% include 'partials/navbar.html' %}
             {% endblock %}
 
+                <!-- id="main-content"
+                hx-boost="true"
+                hx-target="#content-stage"
+                hx-select="#content-stage"
+                hx-swap="outerHTML"
+                hx-push-url="true" -->
+
             <main
+
                 class="flex-1 overflow-y-auto px-4 pt-24 pb-6 sm:px-6 lg:px-8 lg:pb-8 [scrollbar-gutter:stable_both-edges]"
             >
-            {% include 'partials/breadcrumbs.html' %}
-              <div id="content-stage" class="is-entering">
-                  {% block content %}{% endblock %}
-              </div>
+                {% include 'partials/breadcrumbs.html' %}
+                <div id="content-stage" class="is-entering">
+                    {% block content %}{% endblock %}
+                </div>
             </main>
         </div>
     </div>

@@ -73,4 +73,5 @@ class SourceMappingBase(PropertyScopedModel, SortableModel):
             self.code = str(self.code).strip().upper()
         super().save(*args, **kwargs)
     
-
+    def __str__(self):
+        return f'{self.property.name} - {self.name}'

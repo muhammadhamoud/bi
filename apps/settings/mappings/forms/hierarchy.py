@@ -29,10 +29,10 @@ from apps.settings.mappings.models import (
     PackageDetail,
     PackageGroup,
     PackageMapping,
-    RateCodeCategory,
+    # RateCodeCategory,
+    # RateCodeGroup,
+    # RateCodeMapping,
     RateCodeDetail,
-    RateCodeGroup,
-    RateCodeMapping,
     RoomTypeCategory,
     RoomTypeDetail,
     RoomTypeGroup,
@@ -380,42 +380,108 @@ class PackageDetailForm(BaseHierarchyDetailForm):
             'sort_order', 'is_active',
         ]
 
-class RateCodeGroupForm(BaseGroupForm):
-    class Meta:
-        model = RateCodeGroup
-        fields = ['property', 'code', 'name', 'description', 'sort_order', 'is_active']
+# class RateCodeGroupForm(BaseGroupForm):
+#     class Meta:
+#         model = RateCodeGroup
+#         fields = ['property', 'code', 'name', 'description', 'sort_order', 'is_active']
 
 
-class RateCodeCategoryForm(BaseCategoryForm):
-    relation_model = RateCodeGroup
-    relation_error_message = 'Selected group must belong to the selected property.'
+# class RateCodeCategoryForm(BaseCategoryForm):
+#     relation_model = RateCodeGroup
+#     relation_error_message = 'Selected group must belong to the selected property.'
 
-    class Meta:
-        model = RateCodeCategory
-        fields = ['property', 'group', 'code', 'name', 'description', 'sort_order', 'is_active']
+#     class Meta:
+#         model = RateCodeCategory
+#         fields = ['property', 'group', 'code', 'name', 'description', 'sort_order', 'is_active']
 
 
-class RateCodeMappingForm(BaseHierarchyMappingForm):
-    relation_model = RateCodeCategory
-    relation_error_message = 'Selected category must belong to the selected property.'
+# class RateCodeMappingForm(BaseHierarchyMappingForm):
+#     relation_model = SegmentDetail
+#     relation_select_related = (
+#         'mapping',
+#         'mapping__category',
+#         'mapping__category__group',
+#     )
+#     relation_ordering = (
+#         'mapping__category__group__name',
+#         'mapping__category__name',
+#         'name',
+#     )
+#     relation_error_message = 'Selected category must belong to the selected property.'
 
-    class Meta:
-        model = RateCodeMapping
-        fields = ['property', 'category', 'code', 'name', 'description', 'sort_order', 'is_active']
+#     class Meta:
+#         model = RateCodeMapping
+#         fields = [
+#             'property',
+#             'category',
+#             'code',
+#             'name',
+#             'description',
+#             'sort_order',
+#             'is_active',
+#         ]
+
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+
+#         queryset = SegmentDetail.objects.select_related(
+#             'property',
+#             'mapping',
+#             'mapping__category',
+#             'mapping__category__group',
+#         ).filter(is_active=True)
+
+#         property_id = None
+
+#         if self.is_bound:
+#             property_id = self.data.get('property') or None
+#         elif self.instance and self.instance.pk:
+#             property_id = self.instance.property_id
+#         elif self.initial.get('property'):
+#             property_id = self.initial.get('property')
+
+#         if property_id:
+#             queryset = queryset.filter(property_id=property_id)
+
+#         self.fields['category'].queryset = queryset.order_by(
+#             'mapping__category__group__name',
+#             'mapping__category__name',
+#             'name',
+#         )
 
 
 class RateCodeDetailForm(BaseHierarchyDetailForm):
-    relation_model = RateCodeMapping
+    relation_model = SegmentDetail
+    relation_select_related = (
+        'mapping',
+        'mapping__category',
+        'mapping__category__group',
+    )
+    relation_ordering = (
+        'mapping__category__group__name',
+        'mapping__category__name',
+        'name',
+    )
     relation_error_message = 'Selected mapping must belong to the selected property.'
 
     class Meta:
         model = RateCodeDetail
         fields = [
-            'property', 'mapping', 'source_system', 'code', 'name', 'description',
-            'notes', 'is_review_required', 'effective_from', 'effective_to',
-            'sort_order', 'is_active',
+            'property',
+            'mapping',
+            'origin',
+            'source_system',
+            'code',
+            'name',
+            'description',
+            'notes',
+            'is_review_required',
+            'effective_from',
+            'effective_to',
+            'sort_order',
+            'is_active',
         ]
-
+        
 class TravelAgentGroupForm(BaseGroupForm):
     class Meta:
         model = TravelAgentGroup
